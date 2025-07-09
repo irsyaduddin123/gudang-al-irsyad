@@ -27,7 +27,7 @@
                 @foreach($permintaan->barang as $barang)
                     <tr>
                         <td>{{ $permintaan->pengguna->nama ?? '-' }}</td>
-                        <td>{{ $permintaan->pengguna->Bagian ?? '-' }}</td>
+                        <td>{{ $permintaan->pengguna->bagian ?? '-' }}</td>
                         <td>{{ $barang->nama_barang }}</td>
                         <td>{{ $barang->pivot->jumlah }}</td>
                         <td>{{ ucfirst($permintaan->status) }}</td>

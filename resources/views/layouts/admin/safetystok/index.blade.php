@@ -19,8 +19,18 @@
     <div class="row">
         <div class="col">
             <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between w-100">
+                        <div>
+                            @unless(in_array(auth()->user()->role, ['manager']))
+                            <a href="{{ route('safetystok.create') }}" class="btn btn-primary mb-3">+ Tambah</a>
+                            @endunless
+                        </div>
+                       
+                    </div>
+                </div>
                 <div class="card-body">
-                    <a href="{{ route('safetystok.create') }}" class="btn btn-primary mb-3">+ Tambah</a>
+                    
                     <table class="table table-bordered">
                         <thead>
                             <tr>

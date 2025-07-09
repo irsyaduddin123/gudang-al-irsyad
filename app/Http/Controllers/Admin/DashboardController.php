@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\RopEoq;
+use DB;
 use Illuminate\Http\Request;
 use App\Models\Permintaan;
 use App\Models\Pengguna;
@@ -15,6 +16,12 @@ class DashboardController extends Controller
     //
     public function index()
 {
+
+    // Barang menipis berdasarkan nilai ROP
+    $barangMenipis = Barang::with('ropEoq')->get()->filter(function ($barang) {
+        return $barang->ropEoq && $barang->stok <= $barang->ropEoq->rop;
+    });
+    // Barang menipis berdasarkan nilai Safety Stock
     $barangMinStok = Barang::with('safetyStok')->get()->filter(function ($barang) {
     return $barang->safetyStok && $barang->stok <= $barang->safetyStok->minstok;
 });
@@ -45,6 +52,24 @@ class DashboardController extends Controller
     $barangList = Barang::with(['safetyStok', 'ropEoq'])->get();
     $ropEoqData = RopEoq::with('barang')->get();
 
+    //grafik 
+    $ropEoqChartData = RopEoq::with('barang')
+    ->select('barang_id', 'bulan', 'rop', 'eoq')
+    ->get()
+    ->groupBy('barang.nama_barang'); // Group by nama barang
+
+    $bulanLabels = RopEoq::select('bulan')
+    ->distinct()
+    ->orderByRaw("STR_TO_DATE(bulan, '%M %Y') ASC")
+    ->pluck('bulan');
+
+    //filter drop down
+    $daftarBarang = RopEoq::with('barang')
+    ->get()
+    ->pluck('barang.nama_barang')
+    ->unique()
+    ->values();
+
 
 
     return view('layouts.admin.dashboard.index', compact(
@@ -55,7 +80,11 @@ class DashboardController extends Controller
         'grafikData',
         'barangList',
         'barangMinStok',
-        'ropEoqData'
+        'barangMenipis',
+        'ropEoqData',
+        'ropEoqChartData',
+        'bulanLabels',
+        'daftarBarang'
     ));
 }
 }

@@ -26,12 +26,17 @@
                 <div class="card-header">
                     <div class="d-flex justify-content-between w-100">
                         <div>
+                            @unless(in_array(auth()->user()->role, ['manager']))
+
                             <a href="{{ route('permintaan.create') }}" class="btn btn-primary">+ Tambah Permintaan</a>
+                            @endunless
                         </div>
+                        @unless(auth()->user()->role === 'permintaan')
                         <div>
-                            <a href="{{ route('permintaan.export.excel') }}" class="btn btn-info btn-sm">Export Excel</a>
-                            <a href="{{ route('permintaan.export.pdf') }}" class="btn btn-warning btn-sm" target="_blank">Export PDF</a>
+                            <a href="{{ route('permintaan.export.excel') }}" class="btn btn-success btn-sm"><i class="fa fa-file-excel"></i> Export Excel</a>
+                            <a href="{{ route('permintaan.export.pdf') }}" class="btn btn-danger btn-sm" target="_blank"><i class="fa fa-file-pdf"></i> Export PDF</a>
                         </div>
+                        @endunless
                     </div>
                 </div>
 
@@ -43,11 +48,15 @@
                                 {{-- <th>No</th> --}}
                                 <th>Pengguna</th>
                                 <th>Bagian</th>
-                                <th>Barang & Jumlah</th>
+                                <th>Barang</th>
+                                <th>Jumlah Permintaan</th>
                                 <th>Stok di gudang</th>
                                 <th>Status</th>
                                 <th>Tanggal</th>
+                                @unless(in_array(auth()->user()->role, ['manager', 'permintaan']))
+
                                 <th>Aksi</th>
+                                @endunless
                             </tr>
                         </thead>
                         <tbody>
@@ -55,14 +64,15 @@
                                 <tr>
                                     {{-- <td>{{ $loop->iteration }}</td> --}}
                                     <td>{{ $permintaan->pengguna->nama ?? '-' }}</td>
-                                    <td>{{ $permintaan->pengguna->Bagian ?? '-' }}</td>
+                                    <td>{{ $permintaan->pengguna->bagian ?? '-' }}</td>
                                     <td>
                                         <ul class="mb-0 pl-3">
                                             @foreach($permintaan->barang as $barang)
-                                                <li>{{ $barang->nama_barang }} ({{ $barang->pivot->jumlah }})</li>
+                                                <li>{{ $barang->nama_barang }} </li>
                                             @endforeach
                                         </ul>
                                     </td>
+                                    <td>{{ $barang->pivot->jumlah }}</td>
                                     <td>
                                          @foreach($permintaan->barang as $barang)
                                                 {{ $barang->stok }}
@@ -80,6 +90,8 @@
                                     <td>
                                         {{ $permintaan->created_at->format('d-m-Y') }}
                                     </td>
+                                    @unless(in_array(auth()->user()->role, ['manager', 'permintaan']))
+
                                     <td>
                                         @if($permintaan->status == 'menunggu')
                                             <form action="{{ route('permintaan.approve', $permintaan->id) }}" method="POST" class="d-inline">
@@ -94,6 +106,7 @@
                                             <em></em>
                                         @endif
                                     </td>
+                                    @endunless
                                 </tr>
                             @empty
                                 <tr>

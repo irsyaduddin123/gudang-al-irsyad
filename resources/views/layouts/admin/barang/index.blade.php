@@ -19,11 +19,29 @@
     <div class="row">
         <div class="col">
             <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between w-100">
+                        <div>
+                            @unless(auth()->user()->role === 'manager')
+                                <a href="{{ route('barang.create') }}" class="btn btn-primary mb-3">+ Tambah Barang</a>
+                            @endunless
+                        </div>
+                        <div>
+                             <a href="{{ route('barang.export') }}" class="btn btn-success mb-3">
+                                <i class="fa fa-file-excel"></i> Export Excel
+                            </a>
+                            <a href="{{ route('barang.exportPdf') }}" class="btn btn-danger mb-3" target="_blank">
+                                <i class="fa fa-file-pdf"></i> Export PDF
+                            </a>
+                            {{-- <a href="{{ route('permintaan.export.pdf') }}" class="btn btn-warning btn-sm" target="_blank">Export PDF</a> --}}
+                        </div>
+                    </div>
+                </div>
                 <div class="card-body">
-                    <a href="{{ route('barang.create') }}" class="btn btn-primary mb-3">+ Tambah Barang</a>
-
+                    {{-- <a href="{{ route('barang.create') }}" class="btn btn-primary mb-3">+ Tambah Barang</a> --}}
+                    
                     <!-- Input filter pencarian -->
-                    {{-- <input class="form-control mb-3" id="searchInput" type="text" placeholder="Cari barang..."> --}}
+                    <input class="form-control mb-3" id="searchInput" type="text" placeholder="Cari barang...">
 
                     <table class="table table-bordered">
                         <thead>
@@ -33,8 +51,11 @@
                                 <th>Harga beli</th>
                                 <th>stok</th>
                                 <th>satuan</th>
+                                <th>Supplier</th>
                                 <th>minimal stok</th>
+                                @unless(auth()->user()->role === 'manager')
                                 <th>aksi</th>
+                                @endunless
                             </tr>
                         </thead>
                         <tbody>
@@ -45,9 +66,12 @@
                                 <td>{{ $b->harga_beli }}</td>
                                 <td>{{ $b->stok }}</td>
                                 <td>{{ $b->satuan }}</td>
+                                 <td>{{ $suppliers[$b->nama_barang]->nama_supplier ?? '-' }}</td>
                                 <td>{{ $b->safetystok->minstok ?? 'minstok null' }}</td>
+                                @unless(auth()->user()->role === 'manager')
                                 <td>
                                     <!-- Tombol Edit -->
+                                      {{-- @unless(auth()->user()->role === 'manager') --}}
                                     <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editModal{{ $b->id }}">
                                         Edit
                                     </button>
@@ -94,6 +118,16 @@
                                                                 @endforeach
                                                             </select>
                                                         </div>
+                                                         <div class="form-group">
+                                                            <label>Supplier</label>
+                                                            <select name="supplier_id" class="form-control">
+                                                                @foreach($suppliers as $sup)
+                                                                    <option value="{{ $sup->id }}" {{ $b->supplier_id == $sup->id ? 'selected' : '' }}>
+                                                                        {{ $sup->nama_supplier }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
                                                     </div>
 
                                                     <div class="modal-footer">
@@ -111,6 +145,7 @@
                                         @method('DELETE')
                                         <button class="btn btn-danger btn-sm">Hapus</button>
                                     </form>
+                                    @endunless
                                 </td>
                             </tr>
                             @endforeach
@@ -118,7 +153,7 @@
                     </table>
 
                     <!-- Script Filter Tabel -->
-                    {{-- <script>
+                    <script>
                         document.addEventListener("DOMContentLoaded", function () {
                             const searchInput = document.getElementById("searchInput");
                             const tableRows = document.querySelectorAll("table tbody tr");
@@ -131,7 +166,7 @@
                                 });
                             });
                         });
-                    </script> --}}
+                    </script>
 
                 </div>
             </div>

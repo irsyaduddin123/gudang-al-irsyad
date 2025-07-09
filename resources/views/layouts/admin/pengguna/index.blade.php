@@ -18,9 +18,19 @@
 <div class="row">
     <div class="col">
         <div class="card">
+            <div class="card-header">
+                    <div class="d-flex justify-content-between w-100">
+                        <div>
+                            @unless(in_array(auth()->user()->role, ['manager']))
+                            <a href="{{ route('pengguna.create') }}" class="btn btn-primary mb-3">+ Tambah Pengguna</a>
+                            @endunless
+                        </div>
+                    </div>
+                </div>
             <div class="card-body">
-                <a href="{{ route('pengguna.create') }}" class="btn btn-primary mb-3">+ Tambah Pengguna</a>
-
+                @unless(auth()->user()->role === 'manager')
+                
+                @endunless
                 <table class="table table-bordered">
                     <thead>
                         <tr>
@@ -29,7 +39,9 @@
                             <th>Username</th>
                             <th>Ruangan</th>
                             <th>Role</th>
+                            @unless(auth()->user()->role === 'manager')
                             <th>Aksi</th>
+                            @endunless
                         </tr>
                     </thead>
                     <tbody>
@@ -38,8 +50,9 @@
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $p->nama }}</td>
                                 <td>{{ $p->username }}</td>
-                                <td>{{ $p->Bagian }}</td>
+                                <td>{{ $p->bagian }}</td>
                                 <td>{{ $p->role }}</td>
+                                @unless(auth()->user()->role === 'manager')
                                 <td>
                                     <!-- Tombol Edit -->
                                     <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editModal{{ $p->id }}">
@@ -79,8 +92,12 @@
                                                     <input type="text" name="username" value="{{ $p->username }}" class="form-control" required>
                                                 </div>
                                                 <div class="form-group">
+                                                    <label>Password (Kosongkan jika tidak ingin diubah)</label>
+                                                    <input type="password" name="password" class="form-control">
+                                                </div>
+                                                <div class="form-group">
                                                     <label>Bagian Ruangan</label>
-                                                    <input type="text" name="Bagian" value="{{ $p->Bagian }}" class="form-control" required>
+                                                    <input type="text" name="bagian" value="{{ $p->bagian }}" class="form-control" required>
                                                 </div>
                                                 <div class="form-group">
                                                     <label>Role</label>
@@ -103,6 +120,7 @@
                                     </form>
                                 </div>
                             </div>
+                            @endunless
                         @endforeach
                     </tbody>
                 </table>

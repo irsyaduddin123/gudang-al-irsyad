@@ -32,12 +32,21 @@
 
         <div class="form-group">
             <label>Pengguna</label>
+
+            @php
+                $user = auth()->user();
+            @endphp
+            @if($user->role === 'permintaan')
+                <input type="hidden" name="pengguna_id" value="{{ $user->id }}">
+                <input type="text" class="form-control" value="{{ $user->nama }} ({{ $user->bagian }})" readonly>
+            @else
             <select name="pengguna_id" class="form-control" required>
                 <option disabled selected>-- Pilih Pengguna --</option>
                 @foreach($penggunas as $p)
                     <option value="{{ $p->id }}">{{ $p->nama }} ({{ $p->Bagian }})</option>
                 @endforeach
             </select>
+            @endif
         </div>
 
         <div id="barang-wrapper">
@@ -49,7 +58,7 @@
                         <option value="{{ $b->id }}" 
                             data-stok="{{ $b->stok }}"
                             data-safety="{{ $b->safetystok->minstok }}">
-                            {{ $b->nama_barang }}
+                            {{ $b->nama_barang }} ({{ $b->satuan }})
                         </option>
                     @endforeach
                 </select>

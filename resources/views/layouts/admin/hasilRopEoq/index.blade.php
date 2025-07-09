@@ -28,7 +28,7 @@
                         </div>
                         <div>
                             {{-- <a href="{{ route('rop-eoq.export.excel') }}" class="btn btn-info btn-sm">Export Excel</a> --}}
-                            <a href="{{ route('rop-eoq.export.excel') }}" class="btn btn-info btn-sm">Export Excel</a>
+                            <a href="{{ route('rop-eoq.export.excel') }}"class="btn btn-success btn-sm"><i class="fa fa-file-excel"></i> Export Excel</a>
 
                         </div>
                     </div>
@@ -48,6 +48,7 @@
                             <th>EOQ</th>
                             {{-- <th>bulanSekarang</th> --}}
                             <th>Tanggal Dihitung</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -64,6 +65,13 @@
                                 <td><strong>{{ number_format($item->eoq, 2) }}</strong></td>
                                 {{-- <td><strong>{{ ($item->bulan) }}</strong></td> --}}
                                 <td>{{ \Carbon\Carbon::parse($item->created_at)->format('d-m-Y') }}</td>
+                                <td>
+                                    <form action="{{ route('rop-eoq.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                    </form>
+                                </td>
                             </tr>
                         @empty
                             <tr>

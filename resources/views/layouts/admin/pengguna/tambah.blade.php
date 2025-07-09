@@ -47,7 +47,7 @@
 
         <div class="form-group">
             <label>Bagian Ruangan</label>
-            <input type="text" name="Bagian" class="form-control" required>
+            <input type="text" name="bagian" class="form-control" required>
         </div>
 
         <div class="form-group">

@@ -17,10 +17,17 @@ class PermintaanController extends Controller
 {
    public function index()
 {
-    $permintaans = Permintaan::with('pengguna', 'barang')
+    $user = auth()->user();
+    $query = Permintaan::with('pengguna', 'barang')
         ->orderByRaw("FIELD(status, 'menunggu', 'disetujui', 'ditolak')")
-        ->orderBy('created_at', 'desc')
-        ->get();
+        ->orderBy('created_at', 'desc');
+
+    // Jika bukan Manager atau Staff, filter berdasarkan ID user
+    if (!in_array($user->role, ['manager', 'staff'])) {
+        $query->where('pengguna_id', $user->id); // Ganti 'user_id' sesuai kolom relasi pengguna
+    }
+
+    $permintaans = $query->get();
 
     return view('layouts.admin.permintaan.index', compact('permintaans'));
 }

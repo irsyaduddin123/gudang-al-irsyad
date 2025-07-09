@@ -40,7 +40,7 @@ class PenggunaController extends Controller
             'nama' => 'required|string|max:255',
             'username' => 'required|string|max:100',
             'password' => 'required|string|min:6',
-            'Bagian' => 'required|string|max:100',
+            'bagian' => 'required|string|max:100',
             'role' => 'required|in:staff,permintaan,manager',
         ]);
 
@@ -48,7 +48,7 @@ class PenggunaController extends Controller
             'nama' => $request->nama,
             'username' => $request->username,
             'password' => Hash::make($request->password),
-            'Bagian' => $request->Bagian,
+            'bagian' => $request->bagian,
             'role' => $request->role,
         ]);
 
@@ -81,17 +81,34 @@ class PenggunaController extends Controller
         $request->validate([
             'nama' => 'required|string|max:255',
             'username' => 'required|string|max:100|',
-            'Bagian' => 'required|string|max:100',
+            'bagian' => 'required|string|max:100',
             'role' => 'required|in:staff,permintaan,manager',
+            'password' => 'nullable|string|min:6',
         ]);
 
+        // $pengguna = Pengguna::findOrFail($id);
+        // $pengguna->update([
+        //     'nama' => $request->nama,
+        //     'username' => $request->username,
+        //     'bagian' => $request->bagian,
+        //     'role' => $request->role,
+        // ]);
+
         $pengguna = Pengguna::findOrFail($id);
-        $pengguna->update([
-            'nama' => $request->nama,
+
+        $data = [
+            'nama'     => $request->nama,
             'username' => $request->username,
-            'Bagian' => $request->Bagian,
-            'role' => $request->role,
-        ]);
+            'bagian'   => $request->bagian,
+            'role'     => $request->role,
+        ];
+
+        // Jika password tidak kosong, hash dan simpan
+        if (!empty($request->password)) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $pengguna->update($data);
 
         return redirect()->route('pengguna.index')->with('success', 'pengguna berhasil diupdate.');
     }

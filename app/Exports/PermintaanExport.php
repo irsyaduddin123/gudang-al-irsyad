@@ -14,9 +14,9 @@ class PermintaanExport implements FromCollection, WithHeadings
             ->get()
             ->map(function ($p) {
                 return [
-                    'ID' => $p->id,
+                    // 'ID' => $p->id,
                     'Pengguna' => $p->pengguna->nama ?? '-',
-                    'Bagian' => $p->pengguna->Bagian ?? '-',
+                    'Bagian' => $p->pengguna->bagian ?? '-',
                     'Barang' => $p->barang->pluck('nama_barang')->implode(', '),
                     'Jumlah' => $p->barang->pluck('pivot.jumlah')->implode(', '),
                     'Status' => $p->status,
@@ -27,7 +27,9 @@ class PermintaanExport implements FromCollection, WithHeadings
 
     public function headings(): array
     {
-        return ['ID', 'Pengguna', 'Bagian', 'Barang', 'Jumlah', 'Status', 'Tanggal'];
+        return [
+            // 'ID', 
+        'Pengguna', 'Bagian', 'Barang', 'Jumlah', 'Status', 'Tanggal'];
     }
 }
 

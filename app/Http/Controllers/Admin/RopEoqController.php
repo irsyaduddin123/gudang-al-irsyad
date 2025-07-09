@@ -14,15 +14,26 @@ use Maatwebsite\Excel\Facades\Excel;//
 class RopEoqController extends Controller
 {
     public function index()
-    {
-        $ropEoq = RopEoq::with('barang')->get();
-        return view('layouts.admin.hasilRopEoq.index', compact('ropEoq'));
-    }
+{
+    $ropEoq = RopEoq::with('barang')->get();
+
+    $groupedData = RopEoq::select(
+            'bulan',
+            DB::raw('AVG(rop) as avg_rop'),
+            DB::raw('AVG(eoq) as avg_eoq')
+        )
+        ->groupBy('bulan')
+        ->orderByRaw("STR_TO_DATE(bulan, '%M %Y') ASC") // urut berdasarkan bulan
+        ->get();
+
+    return view('layouts.admin.hasilRopEoq.index', compact('ropEoq', 'groupedData'));
+}
+
 
     public function create()
     {
         $barangs = Barang::all();
-        return view('layouts.admin.hasilRopEoq.tambah', compact('barangs'));
+        return view('layouts.admin.hasilRopEoq.tambah', compact('barangs', ));
     }
 
     public function store(Request $request)
@@ -57,21 +68,23 @@ class RopEoqController extends Controller
             ->distinct()
             ->count();
 
-        // Hitung biaya pesan per periode
-        $biaya_per = $biaya_simpan*30;
+        
 
         // Pemakaian rata-rata per bulan
-        $pemakaian_rata = $jumlahHari > 0 ? ($totalPermintaan / 30) : 1;
+        $pemakaian_rata = $jumlahHari > 0 ? ($totalPermintaan / $jumlahHari) : 1;
 
+        //eoq
         // pemakian rata-rata kali periode
         $pemakaian_rata_per = $pemakaian_rata * 30;
+        // Hitung biaya pesan per periode
+        $biaya_per = $biaya_simpan*30;
 
         // Ambil safety stok dari relasi
         $safety_stok = $barang->safetystok->minstok ?? 0;
 
         // Hitung ROP dan EOQ
-        $rop = ($lead_time * $pemakaian_rata) + $safety_stok;
-        $eoq = sqrt(num: (2 * $biaya_pesan * $pemakaian_rata_per) / $biaya_per);
+        $rop = round($lead_time * $pemakaian_rata) + $safety_stok;
+        $eoq = round(sqrt(num: (2 * $biaya_pesan * $pemakaian_rata_per) / $biaya_per));
 
     //     dd([
     //         'barang' => $barang->nama_barang,
@@ -108,6 +121,15 @@ class RopEoqController extends Controller
 
         return redirect()->route('rop-eoq.index')->with('success', 'Perhitungan ROP & EOQ berhasil disimpan!');
     }
+    public function destroy($id)
+    {
+        $data = RopEoq::findOrFail($id);
+        $data->delete();
+
+        return back()->with('success', 'Data ROP & EOQ berhasil dihapus.');
+    }
+
+
     public function exportExcel()
     {
         return Excel::download(new RopEoqExport, 'RopEoq.xlsx');

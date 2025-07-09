@@ -12,5 +12,9 @@ class supplier extends Model
     // protected $guarded = [];
     protected $fillable = ['nama_supplier', 'nama_barang'];
 
+    public function barangs()
+{
+    return $this->hasMany(Barang::class, 'nama_barang', 'nama_barang');
+}
 
 }
