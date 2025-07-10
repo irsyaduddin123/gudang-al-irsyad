@@ -70,16 +70,18 @@
     <div class="row">
         <!-- Card 1 -->
         <div class="col-lg-3 col-6">
-            <div class="small-box bg-info">
-                <div class="inner">
-                    <h3>{{ $jumlahBarang }}</h3>
-                    <p>Jumlah Barang</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-boxes"></i>
-                </div>
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h5 class="mb-1 fw-bold text-white">
+                        {{ \Illuminate\Support\Str::limit($barangTerbanyak->nama_barang ?? 'Tidak Ada', 25) }}
+                    </h5>
+                <p>Barang Paling Sering Diminta</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-star"></i>
             </div>
         </div>
+    </div>
         <!-- Card 2 -->
         <div class="col-lg-3 col-6">
             <div class="small-box bg-warning">
@@ -121,10 +123,64 @@
     <!-- Grafik -->
     <div class="card mb-4">
         <div class="card-body">
-            <h5>Grafik Permintaan Barang (Bulan Ini)</h5>
+            <h5>Grafik Permintaan Barang </h5>
+            <form method="GET" id="filterForm" class="mb-3">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="col-form-label fw-semibold">Pilih Bulan:
+                        <select name="bulan" id="bulan" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">-- Semua Bulan --</option>
+                            @foreach($daftarBulan as $bulan)
+                                <option value="{{ $bulan }}" {{ $bulan == $bulanFilter ? 'selected' : '' }}>
+                                    {{ \Carbon\Carbon::createFromFormat('F Y', $bulan)->translatedFormat('F') }}
+                                </option>
+                            @endforeach
+                        </select>
+                        </label>
+                    </div>
+                </div>
+            </form>
+            {{-- <h6>Bulan: {{ $bulanFilter ? \Carbon\Carbon::createFromFormat('F Y', $bulanFilter)->translatedFormat('F') : 'Semua' }}</h6> --}}
+
             <canvas id="permintaanChart"></canvas>
         </div>
     </div>
+
+    {{-- <div class="card mb-4">
+        <div class="card-body">
+            <h5>Grafik Permintaan Barang</h5>
+
+            <form method="GET" id="filterForm" class="mb-3">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-4">
+                        <label class="col-form-label fw-semibold">Pilih Bulan:</label>
+                        <select name="bulan" id="bulan" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">-- Semua Bulan --</option>
+                            @foreach($daftarBulan as $bulan)
+                                <option value="{{ $bulan }}" {{ $bulan == $bulanFilter ? 'selected' : '' }}>
+                                    {{ \Carbon\Carbon::createFromFormat('F Y', $bulan)->translatedFormat('F') }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="col-form-label fw-semibold">Pilih Tahun:</label>
+                        <select name="tahun" id="tahun" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">-- Semua Tahun --</option>
+                            @foreach($daftarTahun as $tahun)
+                                <option value="{{ $tahun }}" {{ $tahun == request('tahun') ? 'selected' : '' }}>
+                                    {{ $tahun }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </form>
+
+            <canvas id="permintaanChart"></canvas>
+        </div>
+    </div> --}}
 
     <!-- Grafik ROP & EOQ -->
 <div class="card mb-4">
@@ -187,6 +243,8 @@
 @endsection
 
 @section('scripts')
+
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const ctx = document.getElementById('permintaanChart').getContext('2d');
