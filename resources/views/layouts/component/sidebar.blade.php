@@ -20,6 +20,16 @@
             'icon' => 'fa fa-shopping-cart'
         ],
         (object)[
+            'title' => 'Barang Keluar',
+            'path' => 'barang-keluar',
+            'icon' => 'fa fa-arrow-right'
+        ],
+        (object)[
+            'title' => 'Barang Masuk',
+            'path' => 'barang-masuk',
+            'icon' => 'fa fa-arrow-left'
+        ],
+        (object)[
             'title' => 'Pengguna',
             'path' => 'pengguna',
             'icon' => 'fa fa-users'
@@ -39,6 +49,7 @@
             'path' => 'hasil',
             'icon' => 'fa fa-calculator'
         ],
+        
     ];
 
     // Filter berdasarkan role

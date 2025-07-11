@@ -75,6 +75,7 @@
 // //dashboard
 // Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+use App\Http\Controllers\Admin\BarangKeluarController;
 use App\Http\Controllers\Permintaan\PermintaanUserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
@@ -169,6 +170,12 @@ Route::middleware(['auth'])->group(function ()
     Route::get('/permintaan/export/pdf', [PermintaanController::class, 'exportPdf'])->name('permintaan.export.pdf');
     Route::post('/permintaan/{id}/approve', [PermintaanController::class, 'approve'])->name('permintaan.approve');
     Route::post('/permintaan/{id}/reject', [PermintaanController::class, 'reject'])->name('permintaan.reject');
+
+    Route::get('/barang-keluar', [BarangKeluarController::class, 'index'])->name('barang_keluar.index');
+    Route::get('/barang-keluar/export-excel', [BarangKeluarController::class, 'exportExcel'])->name('barang_keluar.export.excel');
+    Route::get('/barang-keluar/export-pdf', [BarangKeluarController::class, 'exportPdf'])->name('barang_keluar.export.pdf');
+
+
 });
 
 // Semua pengguna bisa akses permintaan

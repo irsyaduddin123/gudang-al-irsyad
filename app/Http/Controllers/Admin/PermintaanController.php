@@ -131,33 +131,65 @@ class PermintaanController extends Controller
         return redirect()->route('permintaan.index')->with('success', 'Permintaan berhasil dihapus.');
     }
 
+    // public function approve($id)
+    // {
+    //     // $permintaan = Permintaan::findOrFail($id);
+    //     // $permintaan->update(['status' => 'disetujui']);
+
+    //     // return back()->with('success', 'Permintaan disetujui.');
+    //     $permintaan = Permintaan::with('barang')->findOrFail($id);
+
+    //     // Kurangi stok barang
+    //     foreach ($permintaan->barang as $barang) {
+    //         $jumlahDiminta = $barang->pivot->jumlah;
+
+    //         // Cek stok cukup
+    //         if ($barang->stok < $jumlahDiminta) {
+    //             return back()->with('error', "Stok barang {$barang->nama_barang} tidak mencukupi.");
+    //         }
+
+    //         // Kurangi stok
+    //         $barang->stok -= $jumlahDiminta;
+    //         $barang->save();
+    //     }
+
+    //     // Update status permintaan
+    //     $permintaan->update(['status' => 'disetujui']);
+
+    //     return back()->with('success', 'Permintaan disetujui dan stok berhasil dikurangi.');
+    // }
+
     public function approve($id)
-    {
-        // $permintaan = Permintaan::findOrFail($id);
-        // $permintaan->update(['status' => 'disetujui']);
+{
+    $permintaan = Permintaan::with('barang')->findOrFail($id);
 
-        // return back()->with('success', 'Permintaan disetujui.');
-        $permintaan = Permintaan::with('barang')->findOrFail($id);
+    // Cek & kurangi stok, lalu catat ke barang_keluar
+    foreach ($permintaan->barang as $barang) {
+        $jumlahDiminta = $barang->pivot->jumlah;
 
-        // Kurangi stok barang
-        foreach ($permintaan->barang as $barang) {
-            $jumlahDiminta = $barang->pivot->jumlah;
-
-            // Cek stok cukup
-            if ($barang->stok < $jumlahDiminta) {
-                return back()->with('error', "Stok barang {$barang->nama_barang} tidak mencukupi.");
-            }
-
-            // Kurangi stok
-            $barang->stok -= $jumlahDiminta;
-            $barang->save();
+        // Cek stok cukup
+        if ($barang->stok < $jumlahDiminta) {
+            return back()->with('error', "Stok barang {$barang->nama_barang} tidak mencukupi.");
         }
 
-        // Update status permintaan
-        $permintaan->update(['status' => 'disetujui']);
+        // Kurangi stok
+        $barang->stok -= $jumlahDiminta;
+        $barang->save();
 
-        return back()->with('success', 'Permintaan disetujui dan stok berhasil dikurangi.');
+        // Simpan ke tabel barang_keluar
+        \App\Models\BarangKeluar::create([
+            'permintaan_id' => $permintaan->id,
+            'barang_id' => $barang->id,
+            'jumlah' => $jumlahDiminta,
+            'tanggal_keluar' => now()->toDateString(),
+        ]);
     }
+
+    // Update status permintaan
+    $permintaan->update(['status' => 'disetujui']);
+
+    return back()->with('success', 'Permintaan disetujui, stok dikurangi, dan barang keluar dicatat.');
+}
 
     public function reject($id)
     {
