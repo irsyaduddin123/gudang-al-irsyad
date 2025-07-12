@@ -40,5 +40,8 @@
     <a href="{{ route('barang.index') }}" class="btn btn-secondary">
         <i class="fas fa-arrow-left"></i> Kembali
     </a>
+    <a href="{{ route('pengadaan.create', $barang->id) }}" class="btn btn-primary">
+        <i class="fa fa-plus"></i> Buat Pengadaan
+    </a>
 </div>
 @endsection

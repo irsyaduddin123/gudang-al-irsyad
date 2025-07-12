@@ -76,6 +76,8 @@
 // Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
 use App\Http\Controllers\Admin\BarangKeluarController;
+use App\Http\Controllers\BarangMasukController;
+use App\Http\Controllers\PengadaanController;
 use App\Http\Controllers\Permintaan\PermintaanUserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
@@ -127,6 +129,27 @@ Route::middleware(['auth'])->group(function ()
     Route::delete('/barang/{id}', [BarangController::class, 'destroy'])->name('barang.destroy');
     Route::get('/barang/{id}', [BarangController::class, 'show'])->name('barang.show');
 
+    //pengadaan
+    // Menampilkan daftar pengadaan
+    Route::get('/pengadaan', [PengadaanController::class, 'index'])->name('pengadaan.index');
+    // Form tambah pengadaan (bawa barang_id sebagai query string)
+    Route::get('/pengadaan/create/{barang}', [PengadaanController::class, 'create'])->name('pengadaan.create');
+
+    // Simpan pengadaan
+    Route::post('/pengadaan', [PengadaanController::class, 'store'])->name('pengadaan.store');
+    // Tampilkan form ubah status
+    Route::get('/pengadaan/{id}/edit-status', [PengadaanController::class, 'editStatus'])->name('pengadaan.edit-status');
+    // Update status
+    Route::put('/pengadaan/{id}/update-status', [PengadaanController::class, 'updateStatus'])->name('pengadaan.update-status');
+    Route::post('/pengadaan/{id}/approve', [PengadaanController::class, 'approve'])->name('pengadaan.approve');
+    Route::post('/pengadaan/{id}/reject', [PengadaanController::class, 'reject'])->name('pengadaan.reject');
+
+    //Barang Masuk
+    Route::get('/barang-masuk', [BarangMasukController::class, 'index'])->name('barang-masuk.index');
+    Route::post('/barang-masuk/{id}/terima', [BarangMasukController::class, 'terima'])->name('barang-masuk.terima');
+    Route::get('/barang-masuk/export/excel', [BarangMasukController::class, 'exportExcel'])->name('barang-masuk.export.excel');
+    Route::get('/barang-masuk/export/pdf', [BarangMasukController::class, 'exportPDF'])->name('barang-masuk.export.pdf');
+
     //export data
     Route::get('/barang/export', [BarangController::class, 'export'])->name('barang.export');
     Route::get('/barang/export-pdf', [BarangController::class, 'exportPdf'])->name('barang.exportPdf');
@@ -171,6 +194,7 @@ Route::middleware(['auth'])->group(function ()
     Route::post('/permintaan/{id}/approve', [PermintaanController::class, 'approve'])->name('permintaan.approve');
     Route::post('/permintaan/{id}/reject', [PermintaanController::class, 'reject'])->name('permintaan.reject');
 
+    //barang keluar
     Route::get('/barang-keluar', [BarangKeluarController::class, 'index'])->name('barang_keluar.index');
     Route::get('/barang-keluar/export-excel', [BarangKeluarController::class, 'exportExcel'])->name('barang_keluar.export.excel');
     Route::get('/barang-keluar/export-pdf', [BarangKeluarController::class, 'exportPdf'])->name('barang_keluar.export.pdf');

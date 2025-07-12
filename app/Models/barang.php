@@ -28,9 +28,13 @@ class barang extends Model
     {
         return $this->hasOne(RopEoq::class);
     }
-        public function supplier()
-    {
-        return $this->belongsTo(Supplier::class, 'nama_barang', 'nama_barang');
-    }
+    //     public function supplier()
+    // {
+    //     return $this->belongsTo(Supplier::class, 'nama_barang', 'nama_barang');
+    // }
 
+    public function suppliers()
+{
+    return Supplier::where('nama_barang', $this->nama_barang)->get();
+}
 }

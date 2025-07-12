@@ -30,6 +30,11 @@
             'icon' => 'fa fa-arrow-left'
         ],
         (object)[
+        'title' => 'Pengadaan',
+        'path' => 'pengadaan',
+        'icon' => 'fa fa-truck-loading'
+    ],
+        (object)[
             'title' => 'Pengguna',
             'path' => 'pengguna',
             'icon' => 'fa fa-users'

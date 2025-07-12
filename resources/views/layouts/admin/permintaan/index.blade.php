@@ -42,8 +42,8 @@
 
 
                 <div class="card-body">
-                    <table id="tabel-permintaan" class="table table-bordered table-striped">
-                        <thead>
+                    <table id="tabel-permintaan" class="table table-bordered table-hover text-center align-middle">
+                        <thead class="table-light">
                             <tr>
                                 {{-- <th>No</th> --}}
                                 <th>Pengguna</th>

@@ -43,15 +43,15 @@
                     <!-- Input filter pencarian -->
                     <input class="form-control mb-3" id="searchInput" type="text" placeholder="Cari barang...">
 
-                    <table class="table table-bordered">
-                        <thead>
+                    <table class="table table-bordered table-hover text-center align-middle">
+                        <thead class="table-light">
                             <tr>
                                 <th>No</th>
                                 <th>Nama</th>
                                 <th>Harga beli</th>
                                 <th>stok</th>
                                 <th>satuan</th>
-                                <th>Supplier</th>
+                                {{-- <th>Supplier</th> --}}
                                 <th>minimal stok</th>
                                 @unless(auth()->user()->role === 'manager')
                                 <th>aksi</th>
@@ -66,7 +66,7 @@
                                 <td>{{ $b->harga_beli }}</td>
                                 <td>{{ $b->stok }}</td>
                                 <td>{{ $b->satuan }}</td>
-                                 <td>{{ $suppliers[$b->nama_barang]->nama_supplier ?? '-' }}</td>
+                                 {{-- <td>{{ $suppliers[$b->nama_barang]->nama_supplier ?? '-' }}</td> --}}
                                 <td>{{ $b->safetystok->minstok ?? 'minstok null' }}</td>
                                 @unless(auth()->user()->role === 'manager')
                                 <td>
@@ -118,7 +118,7 @@
                                                                 @endforeach
                                                             </select>
                                                         </div>
-                                                         <div class="form-group">
+                                                         {{-- <div class="form-group">
                                                             <label>Supplier</label>
                                                             <select name="supplier_id" class="form-control">
                                                                 @foreach($suppliers as $sup)
@@ -127,7 +127,7 @@
                                                                     </option>
                                                                 @endforeach
                                                             </select>
-                                                        </div>
+                                                        </div> --}}
                                                     </div>
 
                                                     <div class="modal-footer">
