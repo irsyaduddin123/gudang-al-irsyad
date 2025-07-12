@@ -6,32 +6,30 @@ use App\Http\Controllers\Controller;
 use App\Models\Barang;
 use App\Models\Pengguna;
 use App\Models\Permintaan;
+use App\Models\BarangKeluar;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Exports\PermintaanExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-
 class PermintaanController extends Controller
 {
-   public function index()
-{
-    $user = auth()->user();
-    $query = Permintaan::with('pengguna', 'barang')
-        ->orderByRaw("FIELD(status, 'menunggu', 'disetujui', 'ditolak')")
-        ->orderBy('created_at', 'desc');
+    public function index()
+    {
+        $user = auth()->user();
+        $query = Permintaan::with('pengguna', 'barang')
+            ->orderByRaw("FIELD(status, 'butuh_validasi_manager', 'menunggu', 'disetujui', 'ditolak')")
+            ->orderBy('created_at', 'desc');
 
-    // Jika bukan Manager atau Staff, filter berdasarkan ID user
-    if (!in_array($user->role, ['manager', 'staff'])) {
-        $query->where('pengguna_id', $user->id); // Ganti 'user_id' sesuai kolom relasi pengguna
+        if (!in_array($user->role, ['manager', 'staff'])) {
+            $query->where('pengguna_id', $user->id);
+        }
+
+        $permintaans = $query->get();
+
+        return view('layouts.admin.permintaan.index', compact('permintaans'));
     }
-
-    $permintaans = $query->get();
-
-    return view('layouts.admin.permintaan.index', compact('permintaans'));
-}
-
 
     public function create()
     {
@@ -50,24 +48,22 @@ class PermintaanController extends Controller
             'jumlah.*' => 'required|integer|min:1',
         ]);
 
-        // Validasi stok dan min stok
+        $butuhValidasi = false;
+
         foreach ($request->barang_id as $index => $barangId) {
             $barang = Barang::with('safetyStok')->findOrFail($barangId);
             $jumlah = $request->jumlah[$index];
             $stokSekarang = $barang->stok;
             $minstok = $barang->safetyStok->minstok ?? 0;
 
-            if (($stokSekarang - $jumlah) <= $minstok) {
-                return back()->with('error', "Permintaan untuk '{$barang->nama_barang}' melebihi batas minimum stok. 
-                    Sisa setelah permintaan = ".($stokSekarang - $jumlah).", Min Stok = $minstok.");
+            if (($stokSekarang - $jumlah) < $minstok) {
+                $butuhValidasi = true;
             }
         }
 
-        // Simpan permintaan
         $permintaan = Permintaan::create([
             'pengguna_id' => $request->pengguna_id,
-            'status' => 'menunggu',
-            // 'bulan' => Carbon::now()->translatedFormat('F Y'), // simpan dalam angka (01-12)
+            'status' => $butuhValidasi ? 'butuh_validasi_manager' : 'menunggu',
         ]);
 
         $bulanSekarang = Carbon::now()->translatedFormat('F Y');
@@ -82,114 +78,32 @@ class PermintaanController extends Controller
         return redirect()->route('permintaan.index')->with('success', 'Permintaan berhasil ditambahkan!');
     }
 
-    public function show(string $id)
-    {
-        $permintaan = Permintaan::with('pengguna', 'barang')->findOrFail($id);
-        return view('layouts.admin.permintaan.show', compact('permintaan'));
-    }
-
-    public function edit(string $id)
+    public function approve($id)
     {
         $permintaan = Permintaan::with('barang')->findOrFail($id);
-        $barangs = Barang::all();
-        $penggunas = Pengguna::all();
-        return view('layouts.admin.permintaan.edit', compact('permintaan', 'barangs', 'penggunas'));
-    }
 
-    public function update(Request $request, string $id)
-    {
-        $request->validate([
-            'pengguna_id' => 'required|exists:pengguna,id',
-            'barang_id' => 'required|array',
-            'barang_id.*' => 'exists:barangs,id',
-            'jumlah' => 'required|array',
-            'jumlah.*' => 'required|integer|min:1',
-            'status' => 'required|in:menunggu,disetujui,ditolak',
-        ]);
+        foreach ($permintaan->barang as $barang) {
+            $jumlahDiminta = $barang->pivot->jumlah;
 
-        $permintaan = Permintaan::findOrFail($id);
-        $permintaan->update([
-            'pengguna_id' => $request->pengguna_id,
-            'status' => $request->status,
-        ]);
+            if ($barang->stok < $jumlahDiminta) {
+                return back()->with('error', "Stok barang {$barang->nama_barang} tidak mencukupi.");
+            }
 
-        $dataBarang = [];
-        foreach ($request->barang_id as $index => $barangId) {
-            $dataBarang[$barangId] = ['jumlah' => $request->jumlah[$index]];
-        }
-        $permintaan->barang()->sync($dataBarang);
+            $barang->stok -= $jumlahDiminta;
+            $barang->save();
 
-        return redirect()->route('permintaan.index')->with('success', 'Permintaan berhasil diperbarui!');
-    }
-
-    public function destroy(string $id)
-    {
-        $permintaan = Permintaan::findOrFail($id);
-        $permintaan->barang()->detach();
-        $permintaan->delete();
-
-        return redirect()->route('permintaan.index')->with('success', 'Permintaan berhasil dihapus.');
-    }
-
-    // public function approve($id)
-    // {
-    //     // $permintaan = Permintaan::findOrFail($id);
-    //     // $permintaan->update(['status' => 'disetujui']);
-
-    //     // return back()->with('success', 'Permintaan disetujui.');
-    //     $permintaan = Permintaan::with('barang')->findOrFail($id);
-
-    //     // Kurangi stok barang
-    //     foreach ($permintaan->barang as $barang) {
-    //         $jumlahDiminta = $barang->pivot->jumlah;
-
-    //         // Cek stok cukup
-    //         if ($barang->stok < $jumlahDiminta) {
-    //             return back()->with('error', "Stok barang {$barang->nama_barang} tidak mencukupi.");
-    //         }
-
-    //         // Kurangi stok
-    //         $barang->stok -= $jumlahDiminta;
-    //         $barang->save();
-    //     }
-
-    //     // Update status permintaan
-    //     $permintaan->update(['status' => 'disetujui']);
-
-    //     return back()->with('success', 'Permintaan disetujui dan stok berhasil dikurangi.');
-    // }
-
-    public function approve($id)
-{
-    $permintaan = Permintaan::with('barang')->findOrFail($id);
-
-    // Cek & kurangi stok, lalu catat ke barang_keluar
-    foreach ($permintaan->barang as $barang) {
-        $jumlahDiminta = $barang->pivot->jumlah;
-
-        // Cek stok cukup
-        if ($barang->stok < $jumlahDiminta) {
-            return back()->with('error', "Stok barang {$barang->nama_barang} tidak mencukupi.");
+            BarangKeluar::create([
+                'permintaan_id' => $permintaan->id,
+                'barang_id' => $barang->id,
+                'jumlah' => $jumlahDiminta,
+                'tanggal_keluar' => now()->toDateString(),
+            ]);
         }
 
-        // Kurangi stok
-        $barang->stok -= $jumlahDiminta;
-        $barang->save();
+        $permintaan->update(['status' => 'disetujui']);
 
-        // Simpan ke tabel barang_keluar
-        \App\Models\BarangKeluar::create([
-            'permintaan_id' => $permintaan->id,
-            'barang_id' => $barang->id,
-            'jumlah' => $jumlahDiminta,
-            'tanggal_keluar' => now()->toDateString(),
-        ]);
+        return back()->with('success', 'Permintaan disetujui dan stok dikurangi.');
     }
-
-    // Update status permintaan
-    $permintaan->update(['status' => 'disetujui']);
-
-    return back()->with('success', 'Permintaan disetujui, stok dikurangi, dan barang keluar dicatat.');
-}
 
     public function reject($id)
     {
@@ -199,15 +113,41 @@ class PermintaanController extends Controller
         return back()->with('success', 'Permintaan ditolak.');
     }
 
-    public function exportExcel()
-{
-    return Excel::download(new PermintaanExport, 'permintaan.xlsx');
-}
+    public function validasiSetujui($id)
+    {
+        $user = auth()->user();
+        if ($user->role !== 'manager') {
+            abort(403, 'Hanya manajer yang boleh menyetujui.');
+        }
 
-public function exportPdf()
-{
-    $permintaans = Permintaan::with('pengguna', 'barang')->get();
-    $pdf = PDF::loadView('layouts.admin.permintaan.export-pdf', compact('permintaans'));
-    return $pdf->download('permintaan.pdf');
-}
+        $permintaan = Permintaan::findOrFail($id);
+        $permintaan->update(['status' => 'menunggu']); // bisa langsung disetujui jika ingin
+
+        return back()->with('success', 'Permintaan berhasil divalidasi oleh manajer.');
+    }
+
+    public function validasiTolak($id)
+    {
+        $user = auth()->user();
+        if ($user->role !== 'manager') {
+            abort(403, 'Hanya manajer yang boleh menolak.');
+        }
+
+        $permintaan = Permintaan::findOrFail($id);
+        $permintaan->update(['status' => 'ditolak']);
+
+        return back()->with('success', 'Permintaan ditolak oleh manajer.');
+    }
+
+    public function exportExcel()
+    {
+        return Excel::download(new PermintaanExport, 'permintaan.xlsx');
+    }
+
+    public function exportPdf()
+    {
+        $permintaans = Permintaan::with('pengguna', 'barang')->get();
+        $pdf = PDF::loadView('layouts.admin.permintaan.export-pdf', compact('permintaans'));
+        return $pdf->download('permintaan.pdf');
+    }
 }

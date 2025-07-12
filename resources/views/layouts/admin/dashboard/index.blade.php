@@ -69,19 +69,31 @@
 <div class="container">
     <div class="row">
         <!-- Card 1 -->
-        <div class="col-lg-3 col-6">
-        <div class="small-box bg-info">
-            <div class="inner">
-                <h5 class="mb-1 fw-bold text-white">
-                        {{ \Illuminate\Support\Str::limit($barangTerbanyak->nama_barang ?? 'Tidak Ada', 25) }}
-                    </h5>
-                <p>Barang Paling Sering Diminta</p>
+        {{-- <div class="col-lg-3 col-6">
+            <div class="small-box bg-success">
+                <div class="inner">
+                    <h3>{{ $jumlahBarang }}</h3>
+                    <p>Total Jenis Barang</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-boxes"></i>
+                </div>
             </div>
-            <div class="icon">
-                <i class="fas fa-star"></i>
+        </div> --}}
+
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-info">
+                <div class="inner">
+                    <h5 class="mb-1 fw-bold text-white">
+                            {{ \Illuminate\Support\Str::limit($barangTerbanyak->nama_barang ?? 'Tidak Ada', 25) }}
+                        </h5>
+                    <p>Barang Paling Sering Diminta</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-star"></i>
+                </div>
             </div>
         </div>
-    </div>
         <!-- Card 2 -->
         <div class="col-lg-3 col-6">
             <div class="small-box bg-warning">

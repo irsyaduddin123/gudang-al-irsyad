@@ -118,10 +118,6 @@ Route::middleware(['auth'])->group(function ()
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard-manager', [ManagerDashboardController::class, 'index'])->name('dashboard.manager');
 
-    // Route::resource('barang', BarangController::class)->except(['show', 'edit']);
-    // Route::resource('supplier', SupplierController::class)->except(['show', 'edit']);
-    // Route::resource('safetystok', SafetystokController::class)->except(['show', 'edit']);
-    // Route::resource('pengguna', PenggunaController::class)->except(['show', 'edit']);
     Route::get('/barang', [BarangController::class, 'index'])->name('barang.index');
     Route::get('/barang/create', [BarangController::class, 'create'])->name('barang.create');
     Route::post('/barang', [BarangController::class, 'store'])->name('barang.store');
@@ -181,7 +177,7 @@ Route::middleware(['auth'])->group(function ()
     Route::put('/safetystok/{id}', [SafetystokController::class, 'update'])->name('safetystok.update');
     Route::delete('/safetystok/{id}', [SafetystokController::class, 'destroy'])->name('safetystok.destroy');
     
-    // Route::resource('permintaan', PermintaanController::class);
+    // Route permintaan
     Route::get('/permintaan', [PermintaanController::class, 'index'])->name('permintaan.index');
     Route::get('/permintaan/create', [PermintaanController::class, 'create'])->name('permintaan.create');
     Route::post('/permintaan', [PermintaanController::class, 'store'])->name('permintaan.store');
@@ -194,25 +190,21 @@ Route::middleware(['auth'])->group(function ()
     Route::post('/permintaan/{id}/approve', [PermintaanController::class, 'approve'])->name('permintaan.approve');
     Route::post('/permintaan/{id}/reject', [PermintaanController::class, 'reject'])->name('permintaan.reject');
 
-    //barang keluar
+    // Validasi permintaan khusus manager (cek role di controller)
+    // Route::get('/permintaan/validasi', [PermintaanController::class, 'validasiIndex'])->name('permintaan.validasi.index');
+    Route::post('/permintaan/{id}/validasi', [PermintaanController::class, 'validasiSetujui'])->name('permintaan.validasi.setujui');
+    Route::post('/permintaan/{id}/tolak', [PermintaanController::class, 'validasiTolak'])->name('permintaan.validasi.tolak');
+
+    // Barang keluar
     Route::get('/barang-keluar', [BarangKeluarController::class, 'index'])->name('barang_keluar.index');
     Route::get('/barang-keluar/export-excel', [BarangKeluarController::class, 'exportExcel'])->name('barang_keluar.export.excel');
     Route::get('/barang-keluar/export-pdf', [BarangKeluarController::class, 'exportPdf'])->name('barang_keluar.export.pdf');
 
-
 });
 
-// Semua pengguna bisa akses permintaan
-// Route::middleware(['auth'])->group(function () {
-//     Route::resource('permintaan', PermintaanController::class);
-//     Route::get('/permintaan/export/excel', [PermintaanController::class, 'exportExcel'])->name('permintaan.export.excel');
-//     Route::get('/permintaan/export/pdf', [PermintaanController::class, 'exportPdf'])->name('permintaan.export.pdf');
-//     Route::post('/permintaan/{id}/approve', [PermintaanController::class, 'approve'])->name('permintaan.approve');
-//     Route::post('/permintaan/{id}/reject', [PermintaanController::class, 'reject'])->name('permintaan.reject');
+
+// Route::middleware(['auth', 'cekrole:permintaan'])->prefix('permintaan-user')->group(function () {
+//     Route::get('/permintaan/user',         [PermintaanUserController::class, 'index'])->name('permintaan.user.index');
+//     Route::get('/create',   [PermintaanUserController::class, 'create'])->name('permintaan.user.create');
+//     Route::post('/',        [PermintaanUserController::class, 'store'])->name('permintaan.user.store');
 // });
-
-Route::middleware(['auth', 'cekrole:permintaan'])->prefix('permintaan-user')->group(function () {
-    Route::get('/permintaan/user',         [PermintaanUserController::class, 'index'])->name('permintaan.user.index');
-    Route::get('/create',   [PermintaanUserController::class, 'create'])->name('permintaan.user.create');
-    Route::post('/',        [PermintaanUserController::class, 'store'])->name('permintaan.user.store');
-});

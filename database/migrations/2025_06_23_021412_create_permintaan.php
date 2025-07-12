@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('pengguna_id'); // foreign key ke tabel pengguna
             $table->enum('status', ['menunggu', 'disetujui', 'ditolak'])->default('menunggu');
+            // $table->enum('status', ['menunggu', 'disetujui', 'ditolak', 'butuh_validasi_manager'])->default('menunggu');
             $table->timestamps();
 
             // Foreign key constraints

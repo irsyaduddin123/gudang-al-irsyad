@@ -1,61 +1,71 @@
 @php
-    $user = auth()->user();
-    $role = $user->role ?? 'guest';
+use App\Models\Permintaan;
 
-    // Semua menu utama
-    $allMenus = [
-        (object)[
-            'title' => 'Dashboard',
-            'path' => '/',
-            'icon' => 'fa fa-home'
-        ],
-        (object)[
-            'title' => 'Barang',
-            'path' => '/barang',
-            'icon' => 'fa fa-warehouse'
-        ],
-        (object)[
-            'title' => 'Permintaan',
-            'path' => 'permintaan',
-            'icon' => 'fa fa-shopping-cart'
-        ],
-        (object)[
-            'title' => 'Barang Keluar',
-            'path' => 'barang-keluar',
-            'icon' => 'fa fa-arrow-right'
-        ],
-        (object)[
-            'title' => 'Barang Masuk',
-            'path' => 'barang-masuk',
-            'icon' => 'fa fa-arrow-left'
-        ],
-        (object)[
+$user = auth()->user();
+$role = $user->role ?? 'guest';
+
+// Hitung jumlah permintaan menunggu dan butuh validasi
+$jumlahMenunggu = 0;
+$jumlahButuhValidasi = 0;
+
+if ($role === 'staff') {
+    $jumlahMenunggu = Permintaan::where('status', 'menunggu')->count();
+} elseif ($role === 'manager') {
+    $jumlahButuhValidasi = Permintaan::where('status', 'butuh_validasi_manager')->count();
+}
+$allMenus = [
+    (object)[
+        'title' => 'Dashboard',
+        'path' => '/',
+        'icon' => 'fa fa-home'
+    ],
+    (object)[
+        'title' => 'Barang',
+        'path' => '/barang',
+        'icon' => 'fa fa-warehouse'
+    ],
+    (object)[
+        'title' => 'Permintaan',
+        'path' => 'permintaan',
+        'icon' => 'fa fa-shopping-cart'
+    ],
+    (object)[
+        'title' => 'Barang Keluar',
+        'path' => 'barang-keluar',
+        'icon' => 'fa fa-arrow-right'
+    ],
+    (object)[
+        'title' => 'Barang Masuk',
+        'path' => 'barang-masuk',
+        'icon' => 'fa fa-arrow-left'
+    ],
+    (object)[
         'title' => 'Pengadaan',
         'path' => 'pengadaan',
         'icon' => 'fa fa-truck-loading'
     ],
-        (object)[
-            'title' => 'Pengguna',
-            'path' => 'pengguna',
-            'icon' => 'fa fa-users'
-        ],
-        (object)[
-            'title' => 'Supplier',
-            'path' => 'supplier',
-            'icon' => 'fa fa-truck'
-        ],
-        (object)[
-            'title' => 'Safety Stok',
-            'path' => 'safety',
-            'icon' => 'fa fa-shield-alt'
-        ],
-        (object)[
-            'title' => 'Hasil ROP dan EOQ',
-            'path' => 'hasil',
-            'icon' => 'fa fa-calculator'
-        ],
-        
-    ];
+    (object)[
+        'title' => 'Pengguna',
+        'path' => 'pengguna',
+        'icon' => 'fa fa-users'
+    ],
+    (object)[
+        'title' => 'Supplier',
+        'path' => 'supplier',
+        'icon' => 'fa fa-truck'
+    ],
+    (object)[
+        'title' => 'Safety Stok',
+        'path' => 'safety',
+        'icon' => 'fa fa-shield-alt'
+    ],
+    (object)[
+        'title' => 'Hasil ROP dan EOQ',
+        'path' => 'hasil',
+        'icon' => 'fa fa-calculator'
+    ],
+];
+
 
     // Filter berdasarkan role
     if (in_array($role, ['staff', 'manager', 'admin'])) {
@@ -65,10 +75,11 @@
     } else {
         $menus = collect([]); // kosong kalau bukan role dikenal
     }
+
 @endphp
 
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
-    <!-- Brand Logo -->
+
     <!-- Brand Logo -->
     {{-- <a href="{{ route('dashboard') }}" class="brand-link">
         <img src="{{ asset('templates/dist/img/AdminLTELogo.png') }}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
@@ -141,26 +152,39 @@
             </ul>
           </li> --}}
           @foreach ($menus as $menu)
-          <li class="nav-item">
-              <a href="{{$menu->path[0] !== '/' ? '/' . $menu->path : $menu->path }}" class="nav-link {{ request()->path() == $menu->path ? 'active' : '' }}">
-                <i class="nav-icon {{$menu->icon}}"></i>
-                <p>
-                    {{$menu->title}}
-                    {{-- <span class="right badge badge-danger">New</span> --}}
-                </p>
-            </a>
-        </li>
-        @endforeach
+              <li class="nav-item">
+                  <a href="{{ $menu->path[0] !== '/' ? '/' . $menu->path : $menu->path }}"
+                    class="nav-link {{ request()->path() == $menu->path ? 'active' : '' }}">
+                      <i class="nav-icon {{ $menu->icon }}"></i>
+                      <p>
+                          {{ $menu->title }}
+
+                          {{-- Menampilkan Notifikasi untuk menu Permintaan --}}
+                          @if($menu->title === 'Permintaan')
+                              @if($role === 'staff' && $jumlahMenunggu > 0)
+                                  <span class="badge badge-warning right" title="Menunggu Disetujui">
+                                      <i class="fa fa-bell"></i> {{ $jumlahMenunggu }}
+                                  </span>
+                              @elseif($role === 'manager' && $jumlahButuhValidasi > 0)
+                                  <span class="badge badge-danger right" title="Butuh Validasi Manager">
+                                      <i class="fa fa-bell"></i> {{ $jumlahButuhValidasi }}
+                                  </span>
+                              @endif
+                          @endif
+                      </p>
+                  </a>
+              </li>
+          @endforeach
         <!-- Logout -->
                 <li class="nav-item">
-    <button class="nav-link btn btn-link text-left text-white"
-            style="width: 100%;"
-            data-bs-toggle="modal"
-            data-bs-target="#logoutModal">
-        <i class="nav-icon fas fa-sign-out-alt"></i>
-        <p>Logout</p>
-    </button>
-</li>
+                  <button class="nav-link btn btn-link text-left text-white"
+                          style="width: 100%;"
+                          data-bs-toggle="modal"
+                          data-bs-target="#logoutModal">
+                      <i class="nav-icon fas fa-sign-out-alt"></i>
+                      <p>Logout</p>
+                  </button>
+              </li>
     </ul>
       </nav>
       <!-- /.sidebar-menu -->
