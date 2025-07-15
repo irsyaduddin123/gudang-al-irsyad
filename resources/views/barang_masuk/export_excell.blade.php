@@ -23,35 +23,31 @@
     </style>
 </head>
 <body>
-
     <div class="center">
         {{-- <img src="{{ public_path('images/logo2.png') }}" alt="Logo" class="logo"> --}}
-        <h2>Laporan Barang Keluar</h2>
-        <p>Berikut adalah daftar barang yang keluar berdasarkan permintaan yang telah disetujui.</p>
+        <h2>Laporan Barang Masuk</h2>
+        <p>Data barang yang telah diterima oleh gudang.</p>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>No</th>
                 <th>Nama Barang</th>
                 <th>Jumlah</th>
-                <th>Tanggal Keluar</th>
-                <th>Nama Bagian</th> {{-- Sudah diubah --}}
+                <th>Tanggal Pengadaan</th>
+                <th>Tanggal Diterima</th>
             </tr>
         </thead>
         <tbody>
-            @foreach ($barang_keluar as $item)
+            @foreach ($data as $item)
                 <tr>
-                    <td>{{ $loop->iteration }}</td>
                     <td>{{ $item->barang->nama_barang ?? '-' }}</td>
                     <td>{{ $item->jumlah }}</td>
-                    <td>{{ \Carbon\Carbon::parse($item->tanggal_keluar)->format('d-m-Y') }}</td>
-                    <td>{{ $item->permintaan->pengguna->Bagian ?? '-' }}</td>
+                    <td>{{ optional($item->pengadaan)->tanggal_pengadaan ? \Carbon\Carbon::parse($item->pengadaan->tanggal_pengadaan)->format('d-m-Y') : '-' }}</td>
+                    <td>{{ $item->tanggal_diterima ? \Carbon\Carbon::parse($item->tanggal_diterima)->format('d-m-Y') : '-' }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
-
 </body>
 </html>

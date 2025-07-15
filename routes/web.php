@@ -88,9 +88,9 @@ use App\Http\Controllers\Admin\{
 };
 use App\Http\Controllers\Manager\ManagerDashboardController;
 
-Route::get('/cekrole-test', function () {
-    return 'AKSES DENGAN CEKROLE';
-})->middleware(['auth', 'cekrole:staff']);
+// Route::get('/cekrole-test', function () {
+//     return 'AKSES DENGAN CEKROLE';
+// })->middleware(['auth', 'cekrole:staff']);
 
 // Login
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -112,6 +112,7 @@ Route::middleware(['auth'])->group(function () {
 //     Route::post('/',        [PermintaanUserController::class, 'store'])->name('permintaan.user.store');
 // });
 
+
 Route::middleware(['auth'])->group(function ()
 // Route::middleware(['auth', 'cekrole:staff,manager'])->group(function () 
 {
@@ -124,6 +125,9 @@ Route::middleware(['auth'])->group(function ()
     Route::put('/barang/{id}', [BarangController::class, 'update'])->name('barang.update');
     Route::delete('/barang/{id}', [BarangController::class, 'destroy'])->name('barang.destroy');
     Route::get('/barang/{id}', [BarangController::class, 'show'])->name('barang.show');
+    Route::get('/barang-export-excell', [BarangController::class, 'export'])->name('barang.export');
+    // Route::get('/barang/export-pdf', [BarangController::class, 'exportPdf']);
+    Route::get('/barang-export-pdf', [BarangController::class, 'exportPdf'])->name('barang.exportPdf');
 
     //pengadaan
     // Menampilkan daftar pengadaan
@@ -143,12 +147,8 @@ Route::middleware(['auth'])->group(function ()
     //Barang Masuk
     Route::get('/barang-masuk', [BarangMasukController::class, 'index'])->name('barang-masuk.index');
     Route::post('/barang-masuk/{id}/terima', [BarangMasukController::class, 'terima'])->name('barang-masuk.terima');
-    Route::get('/barang-masuk/export/excel', [BarangMasukController::class, 'exportExcel'])->name('barang-masuk.export.excel');
+    Route::get('/barang-masuk/export-excel', [BarangMasukController::class, 'exportExcel'])->name('barang_masuk.export_excel');
     Route::get('/barang-masuk/export/pdf', [BarangMasukController::class, 'exportPDF'])->name('barang-masuk.export.pdf');
-
-    //export data
-    Route::get('/barang/export', [BarangController::class, 'export'])->name('barang.export');
-    Route::get('/barang/export-pdf', [BarangController::class, 'exportPdf'])->name('barang.exportPdf');
 
 
     //supplier
@@ -170,6 +170,7 @@ Route::middleware(['auth'])->group(function ()
     Route::post('/hasil', [RopEoqController::class, 'store'])->name('rop-eoq.store');
     Route::delete('/rop-eoq/{id}', [RopEoqController::class, 'destroy'])->name('rop-eoq.destroy');
     Route::get('/rop-eoq/export/excel', [RopEoqController::class, 'exportExcel'])->name('rop-eoq.export.excel');
+    Route::get('/rop-eoq/export/pdf', [RopEoqController::class, 'exportPDF'])->name('rop-eoq.export.pdf');
     Route::get('/rop-eoq/{id}/edit', [RopEoqController::class, 'edit'])->name('rop-eoq.edit');
     Route::put('/rop-eoq/{id}', [RopEoqController::class, 'update'])->name('rop-eoq.update');
 

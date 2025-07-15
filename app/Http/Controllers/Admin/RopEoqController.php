@@ -6,6 +6,7 @@ use App\Exports\RopEoqExport;
 use App\Http\Controllers\Controller;
 use App\Models\Barang;
 use App\Models\RopEoq;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -324,5 +325,16 @@ class RopEoqController extends Controller
     {
         return Excel::download(new RopEoqExport, 'RopEoq.xlsx');
     }
+    public function exportPDF()
+    {
+        $ropEoq = RopEoq::with('barang')->orderBy('created_at', 'desc')->get();
+        $tanggal = now()->translatedFormat('d F Y');
+
+        $pdf = Pdf::loadView('layouts.admin.hasilRopEoq.pdf', compact('ropEoq', 'tanggal'))
+            ->setPaper('a4', 'landscape');
+
+        return $pdf->download('laporan_rop_eoq.pdf');
+    }
+
 
 }

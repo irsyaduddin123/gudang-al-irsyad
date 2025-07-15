@@ -65,15 +65,17 @@ class BarangMasukController extends Controller
         return back()->with('success', 'Pengadaan disetujui dan barang menunggu penerimaan.');
     }
     public function exportExcel()
-{
-    return Excel::download(new BarangMasukExport, 'barang_masuk.xlsx');
-}
+    {
+        return Excel::download(new BarangMasukExport, 'barang_masuk.xlsx');
+    }
 
-public function exportPDF()
-{
-    $barangMasuk = BarangMasuk::with('barang', 'pengadaan')->get();
+    public function exportPDF()
+    {
+        $barangMasuk = BarangMasuk::with(['barang', 'pengadaan.supplier'])->get();
+        $bulan = now()->translatedFormat('F Y');
 
-    $pdf = Pdf::loadView('barang_masuk.export_pdf', compact('barangMasuk'));
-    return $pdf->download('barang_masuk.pdf');
-}
+        $pdf = Pdf::loadView('barang_masuk.export_pdf', compact('barangMasuk', 'bulan'));
+        return $pdf->download('barang_masuk.pdf');
+    }
+
 }

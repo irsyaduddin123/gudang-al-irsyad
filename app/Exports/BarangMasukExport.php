@@ -4,26 +4,14 @@
 namespace App\Exports;
 
 use App\Models\BarangMasuk;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
+use Illuminate\Contracts\View\View;
+use Maatwebsite\Excel\Concerns\FromView;
 
-class BarangMasukExport implements FromCollection, WithHeadings
+class BarangMasukExport implements FromView
 {
-    public function collection()
+    public function view(): View
     {
-        return BarangMasuk::with('barang', 'pengadaan')->get()->map(function ($item) {
-            return [
-                $item->barang->nama_barang,
-                $item->jumlah,
-                optional($item->pengadaan)->tanggal_pengadaan ?? '-',
-                $item->tanggal_diterima ?? '-',
-            ];
-        });
-    }
-
-    public function headings(): array
-    {
-        return ['Nama Barang', 'Jumlah', 'Tanggal Pengadaan', 'Tanggal Diterima'];
+        $data = BarangMasuk::with(['barang', 'pengadaan'])->get();
+        return view('barang_masuk.export_excell', compact('data'));
     }
 }
-

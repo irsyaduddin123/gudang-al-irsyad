@@ -19,14 +19,20 @@
     <div class="col">
         <div class="card">
             <div class="card-header">
-                @if(session('success'))
-                    <div class="alert alert-success mb-0">{{ session('success') }}</div>
-                @endif
-                <div class="d-flex justify-content-between w-100 mt-2">
-                    <a href="{{ route('rop-eoq.create') }}" class="btn btn-primary">Lakukan Perhitungan</a>
-                    <a href="{{ route('rop-eoq.export.excel') }}" class="btn btn-success btn-sm">
-                        <i class="fa fa-file-excel"></i> Export Excel
-                    </a>
+                <div class="d-flex justify-content-between w-100">
+                    <div>
+                        <a href="{{ route('rop-eoq.create') }}" class="btn btn-primary">
+                            Lakukan Perhitungan
+                        </a>
+                    </div>
+                    <div>
+                            <a href="{{ route('rop-eoq.export.excel') }}" class="btn btn-success">
+                            <i class="fa fa-file-excel me-1"></i> Export Excel
+                        </a>
+                        <a href="{{ route('rop-eoq.export.pdf') }}" class="btn btn-danger">
+                            <i class="fa fa-file-pdf me-1"></i> Export PDF
+                        </a>
+                    </div>
                 </div>
             </div>
             <div class="card-body table-responsive">
@@ -47,46 +53,45 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($ropEoq as $item)
+                        @foreach($ropEoq as $item)
                             <tr>
                                 <td class="text-center">{{ $loop->iteration }}</td>
-                                <td>{{ $item->barang->nama_barang ?? '-' }}</td>
-                                <td class="text-center">{{ $item->barang->stok ?? '0' }}</td>
+                                <td>{{ $item->barang->nama_barang }}</td>
+                                <td class="text-center">{{ $item->barang->stok }}</td>
                                 <td class="text-center">{{ $item->lead_time }} hari</td>
-                                <td class="text-end text-nowrap">{{ number_format($item->pemakaian_rata, 2) }}</td>
-                                <td class="text-end text-nowrap">Rp {{ number_format($item->biaya_pesan, 0, ',', '.') }}</td>
-                                <td class="text-end text-nowrap">Rp {{ number_format($item->biaya_simpan, 0, ',', '.') }}</td>
-                                <td class="text-end fw-bold text-nowrap">{{ number_format($item->rop, 2) }}</td>
-                                <td class="text-end fw-bold text-nowrap">{{ number_format($item->eoq, 2) }}</td>
+                                <td class="text-end">{{ number_format($item->pemakaian_rata, 2) }}</td>
+                                <td class="text-end">Rp {{ number_format($item->biaya_pesan, 0, ',', '.') }}</td>
+                                <td class="text-end">Rp {{ number_format($item->biaya_simpan, 0, ',', '.') }}</td>
+                                <td class="text-end fw-bold">{{ number_format($item->rop, 2) }}</td>
+                                <td class="text-end fw-bold">{{ number_format($item->eoq, 2) }}</td>
                                 <td class="text-center">{{ \Carbon\Carbon::parse($item->created_at)->format('d-m-Y') }}</td>
                                 <td class="text-center text-nowrap">
-                                    <form action="{{ route('rop-eoq.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                                    </form>
-                                    <button 
-                                        class="btn btn-warning btn-sm mt-1"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalUpdateRopEoq"
-                                        data-id="{{ $item->id }}"
-                                        data-barang_id="{{ $item->barang_id }}"
-                                        data-nama_barang="{{ $item->barang->nama_barang }}"
-                                        data-lead_time="{{ $item->lead_time }}"
-                                        data-biaya_simpan="{{ $item->biaya_simpan }}"
-                                        data-periode="{{ \Carbon\Carbon::parse($item->bulan)->format('Y-m') }}"
-                                    >
-                                        Perhitungan Ulang
-                                    </button>
+                                    <div class="d-flex flex-row justify-content-center gap-1">
+                                        <form action="{{ route('rop-eoq.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                        </form>
+                                        <button 
+                                            class="btn btn-warning btn-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalUpdateRopEoq"
+                                            data-id="{{ $item->id }}"
+                                            data-barang_id="{{ $item->barang_id }}"
+                                            data-nama_barang="{{ $item->barang->nama_barang }}"
+                                            data-lead_time="{{ $item->lead_time }}"
+                                            data-biaya_simpan="{{ $item->biaya_simpan }}"
+                                            data-periode="{{ \Carbon\Carbon::parse($item->bulan)->format('Y-m') }}"
+                                        >
+                                            Perhitungan Ulang
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="11" class="text-center">Belum ada data ROP & EOQ</td>
-                            </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
+
             </div>
         </div>
     </div>

@@ -24,7 +24,7 @@
                         {{-- Tidak ada tombol tambah karena data ini berasal dari pengadaan --}}
                     </div>
                     <div>
-                        <a href="{{ route('barang-masuk.export.excel') }}" class="btn btn-success btn-sm me-2">
+                        <a href="{{ route('barang_masuk.export_excel') }}" class="btn btn-success btn-sm me-2">
                             <i class="fa fa-file-excel"></i> Export Excel
                         </a>
                         <a href="{{ route('barang-masuk.export.pdf') }}" class="btn btn-danger btn-sm">
