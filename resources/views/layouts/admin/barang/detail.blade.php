@@ -21,15 +21,15 @@
             <td>{{ $barang->satuan }}</td>
         </tr>
         <tr>
-            <th>Safety Stock</th>
+            <th>Safety Stock (stok aman)</th>
             <td>{{ $barang->safetystok->minstok ?? '-' }}</td>
         </tr>
         <tr>
-            <th>ROP</th>
+            <th>Titik Pemesanan Ulang Stok (ROP)</th>
             <td>{{ $barang->ropEoq->rop ?? '-' }}</td>
         </tr>
         <tr>
-            <th>Pesan kembali sebanyak</th>
+            <th>Pesan kembali sebanyak (EOQ)</th>
             <td>{{ $barang->ropEoq->eoq ?? '-' }}</td>
         </tr>
         <tr>
