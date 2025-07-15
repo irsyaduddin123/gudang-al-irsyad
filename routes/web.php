@@ -170,6 +170,8 @@ Route::middleware(['auth'])->group(function ()
     Route::post('/hasil', [RopEoqController::class, 'store'])->name('rop-eoq.store');
     Route::delete('/rop-eoq/{id}', [RopEoqController::class, 'destroy'])->name('rop-eoq.destroy');
     Route::get('/rop-eoq/export/excel', [RopEoqController::class, 'exportExcel'])->name('rop-eoq.export.excel');
+    Route::get('/rop-eoq/{id}/edit', [RopEoqController::class, 'edit'])->name('rop-eoq.edit');
+    Route::put('/rop-eoq/{id}', [RopEoqController::class, 'update'])->name('rop-eoq.update');
 
     Route::get('/safety', [SafetystokController::class, 'index'])->name('safetystok.index');
     Route::get('/safetystok/create', [SafetystokController::class, 'create'])->name('safetystok.create');

@@ -75,6 +75,7 @@
                                 <th>Jumlah</th>
                                 <th>Tanggal Pengadaan</th>
                                 <th>Tanggal Diterima</th>
+                                <th>Lead Time (hari)</th> {{-- Tambahkan ini --}}
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -93,6 +94,14 @@
                                         @endif
                                     </td>
                                     <td>
+                                        @if($item->tanggal_diterima && optional($item->pengadaan)->tanggal_pengadaan)
+                                            {{-- Hitung selisih hari --}}
+                                            {{ \Carbon\Carbon::parse($item->pengadaan->tanggal_pengadaan)->diffInDays(\Carbon\Carbon::parse($item->tanggal_diterima)) }} hari
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    <td>
                                         @if(!$item->tanggal_diterima)
                                             <form action="{{ route('barang-masuk.terima', $item->id) }}" method="POST" onsubmit="return confirm('Yakin barang sudah diterima?')">
                                                 @csrf
@@ -107,7 +116,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-muted">Tidak ada data barang masuk.</td>
+                                    <td colspan="7" class="text-muted">Tidak ada data barang masuk.</td>
                                 </tr>
                             @endforelse
                         </tbody>

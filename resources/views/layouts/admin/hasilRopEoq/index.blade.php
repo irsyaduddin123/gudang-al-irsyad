@@ -20,22 +20,18 @@
         <div class="card">
             <div class="card-header">
                 @if(session('success'))
-                    <div class="alert alert-success">{{ session('success') }}</div>
+                    <div class="alert alert-success mb-0">{{ session('success') }}</div>
                 @endif
-                <div class="d-flex justify-content-between w-100">
-                        <div>
-                            <a href="{{ route('rop-eoq.create') }}" class="btn btn-primary"> Lakukan Perhitungan</a>
-                        </div>
-                        <div>
-                            {{-- <a href="{{ route('rop-eoq.export.excel') }}" class="btn btn-info btn-sm">Export Excel</a> --}}
-                            <a href="{{ route('rop-eoq.export.excel') }}"class="btn btn-success btn-sm"><i class="fa fa-file-excel"></i> Export Excel</a>
-
-                        </div>
-                    </div>
+                <div class="d-flex justify-content-between w-100 mt-2">
+                    <a href="{{ route('rop-eoq.create') }}" class="btn btn-primary">Lakukan Perhitungan</a>
+                    <a href="{{ route('rop-eoq.export.excel') }}" class="btn btn-success btn-sm">
+                        <i class="fa fa-file-excel"></i> Export Excel
+                    </a>
+                </div>
             </div>
-            <div class="card-body">              
-                <table class="table table-bordered">
-                    <thead>
+            <div class="card-body table-responsive">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light text-center">
                         <tr>
                             <th>No</th>
                             <th>Nama Barang</th>
@@ -46,7 +42,6 @@
                             <th>Biaya Simpan</th>
                             <th>ROP</th>
                             <th>EOQ</th>
-                            {{-- <th>bulanSekarang</th> --}}
                             <th>Tanggal Dihitung</th>
                             <th>Aksi</th>
                         </tr>
@@ -54,35 +49,114 @@
                     <tbody>
                         @forelse($ropEoq as $item)
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
+                                <td class="text-center">{{ $loop->iteration }}</td>
                                 <td>{{ $item->barang->nama_barang ?? '-' }}</td>
-                                <td>{{ $item->barang->stok ?? '0' }}</td>
-                                <td>{{ $item->lead_time }} hari</td>
-                                <td>{{ number_format($item->pemakaian_rata, 2) }}</td>
-                                <td>Rp {{ number_format($item->biaya_pesan, 0, ',', '.') }}</td>
-                                <td>Rp {{ number_format($item->biaya_simpan, 0, ',', '.') }}</td>
-                                <td><strong>{{ number_format($item->rop, 2) }}</strong></td>
-                                <td><strong>{{ number_format($item->eoq, 2) }}</strong></td>
-                                {{-- <td><strong>{{ ($item->bulan) }}</strong></td> --}}
-                                <td>{{ \Carbon\Carbon::parse($item->created_at)->format('d-m-Y') }}</td>
-                                <td>
-                                    <form action="{{ route('rop-eoq.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                                <td class="text-center">{{ $item->barang->stok ?? '0' }}</td>
+                                <td class="text-center">{{ $item->lead_time }} hari</td>
+                                <td class="text-end text-nowrap">{{ number_format($item->pemakaian_rata, 2) }}</td>
+                                <td class="text-end text-nowrap">Rp {{ number_format($item->biaya_pesan, 0, ',', '.') }}</td>
+                                <td class="text-end text-nowrap">Rp {{ number_format($item->biaya_simpan, 0, ',', '.') }}</td>
+                                <td class="text-end fw-bold text-nowrap">{{ number_format($item->rop, 2) }}</td>
+                                <td class="text-end fw-bold text-nowrap">{{ number_format($item->eoq, 2) }}</td>
+                                <td class="text-center">{{ \Carbon\Carbon::parse($item->created_at)->format('d-m-Y') }}</td>
+                                <td class="text-center text-nowrap">
+                                    <form action="{{ route('rop-eoq.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
                                     </form>
+                                    <button 
+                                        class="btn btn-warning btn-sm mt-1"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalUpdateRopEoq"
+                                        data-id="{{ $item->id }}"
+                                        data-barang_id="{{ $item->barang_id }}"
+                                        data-nama_barang="{{ $item->barang->nama_barang }}"
+                                        data-lead_time="{{ $item->lead_time }}"
+                                        data-biaya_simpan="{{ $item->biaya_simpan }}"
+                                        data-periode="{{ \Carbon\Carbon::parse($item->bulan)->format('Y-m') }}"
+                                    >
+                                        Perhitungan Ulang
+                                    </button>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="text-center">Belum ada data ROP & EOQ</td>
+                                <td colspan="11" class="text-center">Belum ada data ROP & EOQ</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
-
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal Update ROP & EOQ -->
+<div class="modal fade" id="modalUpdateRopEoq" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="formUpdateRopEoq" method="POST">
+        @csrf
+        @method('PUT')
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Perhitungan Ulang ROP & EOQ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <input type="hidden" name="barang_id" id="modal_barang_id">
+
+                {{-- Nama barang readonly --}}
+                <div class="mb-3">
+                    <label>Nama Barang</label>
+                    <input type="text" id="modal_nama_barang" class="form-control" readonly>
+                </div>
+
+                <div class="mb-3">
+                    <label>Periode Bulan</label>
+                    <input type="month" name="periode" id="modal_periode" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label>Biaya Simpan</label>
+                    <input type="number" name="biaya_simpan" id="modal_biaya_simpan" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label>Lead Time (hari)</label>
+                    <input type="number" name="lead_time" id="modal_lead_time" class="form-control" required>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Perbarui</button>
+            </div>
+        </div>
+    </form>
+  </div>
+</div>
+<script>
+    const modal = document.getElementById('modalUpdateRopEoq');
+    modal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+
+        const id = button.getAttribute('data-id');
+        const barangId = button.getAttribute('data-barang_id');
+        const namaBarang = button.getAttribute('data-nama_barang');
+        const leadTime = button.getAttribute('data-lead_time');
+        const biayaSimpan = button.getAttribute('data-biaya_simpan');
+        const periode = button.getAttribute('data-periode');
+
+        const form = document.getElementById('formUpdateRopEoq');
+        form.action = '/rop-eoq/' + id;
+
+        document.getElementById('modal_barang_id').value = barangId;
+        document.getElementById('modal_nama_barang').value = namaBarang;
+        document.getElementById('modal_lead_time').value = leadTime;
+        document.getElementById('modal_biaya_simpan').value = biayaSimpan;
+        document.getElementById('modal_periode').value = periode;
+    });
+</script>
+
 @endsection
