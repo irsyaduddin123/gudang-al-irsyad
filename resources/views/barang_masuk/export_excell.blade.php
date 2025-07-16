@@ -30,24 +30,33 @@
     </div>
 
     <table>
-        <thead>
+    <thead>
+        <tr>
+            <th>No</th>
+            <th>Nama Barang</th>
+            <th>Jumlah</th>
+            <th>Tanggal Pengadaan</th>
+            <th>Tanggal Diterima</th>
+            <th>Supplier</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse($barangMasuk as $item)
             <tr>
-                <th>Nama Barang</th>
-                <th>Jumlah</th>
-                <th>Tanggal Pengadaan</th>
-                <th>Tanggal Diterima</th>
+                <td>{{ $loop->iteration }}</td>
+                <td>{{ $item->barang->nama_barang }}</td>
+                <td>{{ $item->jumlah }}</td>
+                <td>{{ optional($item->pengadaan)->tanggal_pengadaan ? \Carbon\Carbon::parse($item->pengadaan->tanggal_pengadaan)->format('d-m-Y') : '-' }}</td>
+                <td>{{ $item->tanggal_diterima ? \Carbon\Carbon::parse($item->tanggal_diterima)->format('d-m-Y') : '-' }}</td>
+                <td>{{ optional($item->pengadaan->supplier)->nama_supplier ?? '-' }}</td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach ($data as $item)
-                <tr>
-                    <td>{{ $item->barang->nama_barang ?? '-' }}</td>
-                    <td>{{ $item->jumlah }}</td>
-                    <td>{{ optional($item->pengadaan)->tanggal_pengadaan ? \Carbon\Carbon::parse($item->pengadaan->tanggal_pengadaan)->format('d-m-Y') : '-' }}</td>
-                    <td>{{ $item->tanggal_diterima ? \Carbon\Carbon::parse($item->tanggal_diterima)->format('d-m-Y') : '-' }}</td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+        @empty
+            <tr>
+                <td colspan="6">Tidak ada data barang masuk untuk filter yang dipilih.</td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
+
 </body>
 </html>

@@ -150,4 +150,18 @@ class PermintaanController extends Controller
         $pdf = PDF::loadView('layouts.admin.permintaan.export-pdf', compact('permintaans'));
         return $pdf->download('permintaan.pdf');
     }
+    public function tolakOlehManager(Request $request, $id)
+    {
+        $request->validate([
+            'alasan_ditolak' => 'required|string|max:255',
+        ]);
+
+        $permintaan = Permintaan::findOrFail($id);
+        $permintaan->status = 'ditolak';
+        $permintaan->alasan_ditolak = $request->alasan_ditolak;
+        $permintaan->save();
+
+        return redirect()->route('permintaan.index')->with('success', 'Permintaan ditolak dengan alasan.');
+    }
+
 }

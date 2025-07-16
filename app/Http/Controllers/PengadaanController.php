@@ -105,19 +105,33 @@ class PengadaanController extends Controller
         return back()->with('success', 'Pengadaan disetujui dan dicatat ke Barang Masuk.');
     }
 
-    public function reject($id)
-    {
-        $pengadaan = Pengadaan::findOrFail($id);
+    // public function reject($id)
+    // {
+    //     $pengadaan = Pengadaan::findOrFail($id);
 
-        if ($pengadaan->status !== 'menunggu') {
-            return back()->with('success', 'Pengadaan sudah diproses.');
-        }
+    //     if ($pengadaan->status !== 'menunggu') {
+    //         return back()->with('success', 'Pengadaan sudah diproses.');
+    //     }
 
-        $pengadaan->status = 'ditolak';
-        $pengadaan->save();
+    //     $pengadaan->status = 'ditolak';
+    //     $pengadaan->save();
 
-        return back()->with('success', 'Pengadaan berhasil ditolak.');
-    }
+    //     return back()->with('success', 'Pengadaan berhasil ditolak.');
+    // }
+    public function reject(Request $request, $id)
+{
+    $request->validate([
+        'keterangan_penolakan' => 'required|string',
+    ]);
+
+    $pengadaan = Pengadaan::findOrFail($id);
+    $pengadaan->status = 'ditolak';
+    $pengadaan->keterangan_penolakan = $request->keterangan_penolakan;
+    $pengadaan->save();
+
+    return redirect()->back()->with('success', 'Pengadaan ditolak dengan keterangan.');
+}
+
 
 }
 

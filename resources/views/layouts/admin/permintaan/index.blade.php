@@ -94,6 +94,26 @@
                                     @endif">
                                     {{ ucfirst(str_replace('_', ' ', $permintaan->status)) }}
                                 </span>
+
+                                {{-- Tampilkan alasan penolakan khusus untuk staff --}}
+                                @php
+                                    $currentUser = auth()->user();
+                                    $pembuat = $permintaan->pengguna;
+                                @endphp
+
+                                @if($permintaan->status === 'ditolak' && $permintaan->alasan_ditolak)
+                                    @if(
+                                        // Jika pembuat permintaan adalah user permintaan
+                                        ($pembuat->role === 'permintaan' && in_array($currentUser->role, ['staff', 'permintaan']) && $currentUser->id === $pembuat->id || $currentUser->role === 'staff') ||
+
+                                        // Jika pembuat permintaan adalah user staff
+                                        ($pembuat->role === 'staff' && $currentUser->id === $pembuat->id)
+                                    )
+                                        <br>
+                                        <small class="text-muted fst-italic">Alasan: {{ $permintaan->alasan_ditolak }}</small>
+                                    @endif
+                                @endif
+
                             </td>
                             <td>{{ $permintaan->created_at->format('d-m-Y') }}</td>
                             <td>
@@ -114,10 +134,31 @@
                                         @csrf
                                         <button type="submit" class="btn btn-sm btn-success">Validasi</button>
                                     </form>
-                                    <form action="{{ route('permintaan.validasi.tolak', $permintaan->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-danger">Tolak</button>
-                                    </form>
+                                    <!-- Tombol buka modal -->
+                                    <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalTolak{{ $permintaan->id }}">
+                                        Tolak
+                                    </button>
+
+                                    <!-- Modal alasan tolak -->
+                                    <div class="modal fade" id="modalTolak{{ $permintaan->id }}" tabindex="-1" aria-labelledby="tolakLabel{{ $permintaan->id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <form action="{{ route('permintaan.tolak.manager', $permintaan->id) }}" method="POST">
+                                            @csrf
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="tolakLabel{{ $permintaan->id }}">Alasan Penolakan</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <textarea name="alasan_ditolak" class="form-control" rows="3" placeholder="Tulis alasan penolakan..." required></textarea>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="submit" class="btn btn-danger">Tolak Permintaan</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    </div>
                                 @else
                                     <em>Tidak ada aksi</em>
                                 @endif

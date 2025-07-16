@@ -24,10 +24,10 @@
                         {{-- Tidak ada tombol tambah karena data ini berasal dari pengadaan --}}
                     </div>
                     <div>
-                        <a href="{{ route('barang_masuk.export_excel') }}" class="btn btn-success btn-sm me-2">
+                        <a href="{{ route('barang_masuk.export_excel' ,request()->query()) }}" class="btn btn-success btn-sm me-2">
                             <i class="fa fa-file-excel"></i> Export Excel
                         </a>
-                        <a href="{{ route('barang-masuk.export.pdf') }}" class="btn btn-danger btn-sm">
+                        <a href="{{ route('barang-masuk.export.pdf', request()->query()) }}" class="btn btn-danger btn-sm">
                             <i class="fa fa-file-pdf"></i> Export PDF
                         </a>
                     </div>
@@ -53,11 +53,15 @@
                         <label for="tanggal_diterima" class="form-label">Tanggal Diterima</label>
                         <input type="date" name="tanggal_diterima" class="form-control" value="{{ request('tanggal_diterima') }}">
                     </div>
-                    <div class="col-md-2 d-flex align-items-end">
+                    <div class="col-md-4 d-flex align-items-end gap-2">
                         <button type="submit" class="btn btn-primary w-100">
                             <i class="fa fa-search"></i> Filter
                         </button>
+                        <a href="{{ route('barang-masuk.index') }}" class="btn btn-secondary w-100">
+                            <i class="fa fa-sync-alt"></i> Reset
+                        </a>
                     </div>
+
                 </form>
 
                 {{-- Flash Message --}}

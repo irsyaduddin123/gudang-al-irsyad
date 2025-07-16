@@ -57,7 +57,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($barang_keluar as $item)
+            @forelse ($barang_keluar as $item)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $item->barang->nama_barang ?? '-' }}</td>
@@ -65,17 +65,23 @@
                     <td>{{ \Carbon\Carbon::parse($item->tanggal_keluar)->translatedFormat('d F Y') }}</td>
                     <td>{{ $item->permintaan->pengguna->bagian ?? '-' }}</td>
                 </tr>
-            @endforeach
+                @empty
+                <tr>
+                    <td colspan="5" style="text-align: center; font-style: italic; color: #555;">
+                        Belum ada data barang keluar
+                    </td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 
-    <div class="signature">
+    {{-- <div class="signature">
         <p>Surabaya, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</p>
         <p><strong>Kepala Logistik</strong></p>
         <div class="signature-name">
             <p><u>....................................</u></p>
         </div>
-    </div>
+    </div> --}}
 
 </body>
 </html>

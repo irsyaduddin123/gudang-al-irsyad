@@ -192,6 +192,9 @@ Route::middleware(['auth'])->group(function ()
     Route::get('/permintaan/export/pdf', [PermintaanController::class, 'exportPdf'])->name('permintaan.export.pdf');
     Route::post('/permintaan/{id}/approve', [PermintaanController::class, 'approve'])->name('permintaan.approve');
     Route::post('/permintaan/{id}/reject', [PermintaanController::class, 'reject'])->name('permintaan.reject');
+    Route::post('/permintaan/{id}/tolak-manager', [PermintaanController::class, 'tolakOlehManager'])->name('permintaan.tolak.manager');
+
+    
 
     // Validasi permintaan khusus manager (cek role di controller)
     // Route::get('/permintaan/validasi', [PermintaanController::class, 'validasiIndex'])->name('permintaan.validasi.index');

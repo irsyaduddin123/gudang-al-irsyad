@@ -18,7 +18,7 @@
 <div class="row">
     <div class="col">
         <div class="card">
-            <div class="card-header ">
+            <div class="card-header">
                 <div class="d-flex justify-content-end w-100">
                     <div>
                         <a href="{{ route('barang_keluar.export.excel', request()->query()) }}" class="btn btn-success btn-sm me-2">
@@ -65,9 +65,13 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-3 mt-3">
-                            <button type="submit" class="btn btn-primary">Filter</button>
-                            <a href="{{ route('barang_keluar.index') }}" class="btn btn-secondary">Reset</a>
+                        <div class="col-md-3 mt-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fa fa-search"></i> Filter
+                            </button>
+                            <a href="{{ route('barang_keluar.index') }}" class="btn btn-secondary w-100">
+                                <i class="fa fa-sync-alt"></i> Reset
+                            </a>
                         </div>
                     </div>
                 </form>
@@ -86,7 +90,11 @@
                         Menampilkan hasil filter:
                         <ul class="mb-0">
                             @if(request('tanggal_awal') && request('tanggal_akhir'))
-                                <li>Tanggal: {{ request('tanggal_awal') }} s/d {{ request('tanggal_akhir') }}</li>
+                                <li>
+                                    Tanggal: {{ \Carbon\Carbon::parse(request('tanggal_awal'))->translatedFormat('d F Y') }}
+                                    s/d
+                                    {{ \Carbon\Carbon::parse(request('tanggal_akhir'))->translatedFormat('d F Y') }}
+                                </li>
                             @endif
                             @if(request('barang_id'))
                                 <li>Barang: {{ $barangs->find(request('barang_id'))?->nama_barang }}</li>
@@ -127,6 +135,11 @@
                         </tbody>
                     </table>
                 </div>
+
+                {{-- Total Count --}}
+                @if($barang_keluar->count())
+                    <p class="text-muted mt-3">Total data ditampilkan: <strong>{{ $barang_keluar->count() }}</strong></p>
+                @endif
 
             </div>
         </div>

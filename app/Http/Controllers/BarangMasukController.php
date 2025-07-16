@@ -64,14 +64,37 @@ class BarangMasukController extends Controller
 
         return back()->with('success', 'Pengadaan disetujui dan barang menunggu penerimaan.');
     }
-    public function exportExcel()
+    public function exportExcel(request $request)
     {
-        return Excel::download(new BarangMasukExport, 'barang_masuk.xlsx');
+        $query = BarangMasuk::with('barang', 'pengadaan');
+
+        if ($request->filled('barang_id')){
+            $query->where('barang_id', $request->barang_id);
+        }
+
+        if($request->filled('tanggal_diterima')){
+            $query->whereDate('tanggal_diterima', $request->tanggal_diterima);
+        }
+        
+        $barangMasuk = $query->latest()->get();
+        // return Excel::download(new BarangMasukExport, 'barang_masuk.xlsx');
+        return Excel::download(new BarangMasukExport($barangMasuk), 'barang_masuk.xlsx');
     }
 
-    public function exportPDF()
+    public function exportPDF(request $request)
     {
-        $barangMasuk = BarangMasuk::with(['barang', 'pengadaan.supplier'])->get();
+        $query = BarangMasuk::with('barang', 'pengadaan');
+
+        if ($request->filled('barang_id')){
+            $query->where('barang_id', $request->barang_id);
+        }
+
+        if($request->filled('tanggal_diterima')){
+            $query->whereDate('tanggal_diterima', $request->tanggal_diterima);
+        }
+
+        // $barangMasuk = BarangMasuk::with(['barang', 'pengadaan.supplier'])->get();
+        $barangMasuk = $query->latest()->get();
         $bulan = now()->translatedFormat('F Y');
 
         $pdf = Pdf::loadView('barang_masuk.export_pdf', compact('barangMasuk', 'bulan'));

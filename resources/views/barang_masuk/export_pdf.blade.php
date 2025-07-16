@@ -46,7 +46,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($barangMasuk as $item)
+            @forelse($barangMasuk as $item)
             <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $item->barang->nama_barang }}</td>
@@ -55,16 +55,22 @@
                 <td>{{ $item->tanggal_diterima ? \Carbon\Carbon::parse($item->tanggal_diterima)->format('d-m-Y') : '-' }}</td>
                 <td>{{ optional($item->pengadaan->supplier)->nama_supplier ?? '-' }}</td>
             </tr>
-            @endforeach
+            @empty
+            <tr>
+                <td colspan="6" style="text-align: center; font-style: italic; color: #555;">
+            Barang masuk tidak ada untuk filter yang dipilih.
+        </td>
+            </tr>
+            @endforelse
         </tbody>
     </table>
 
-    <div class="signature">
+    {{-- <div class="signature">
         <p>Surabaya, {{ \Carbon\Carbon::now()->format('d F Y') }}</p>
         <p><strong>Kepala Logistik</strong></p>
         <br><br><br>
         <p><u>....................................</u></p>
-    </div>
+    </div> --}}
 
 </body>
 </html>
