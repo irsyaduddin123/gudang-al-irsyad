@@ -15,20 +15,56 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class PermintaanController extends Controller
 {
-    public function index()
+    // Method untuk mengambil data terfilter
+    protected function getFilteredPermintaans(Request $request)
     {
         $user = auth()->user();
         $query = Permintaan::with('pengguna', 'barang')
             ->orderByRaw("FIELD(status, 'butuh_validasi_manager', 'menunggu', 'disetujui', 'ditolak')")
             ->orderBy('created_at', 'desc');
 
+        // Filter tanggal permintaan: pastikan format tanggal sesuai (YYYY-MM-DD)
+        if ($request->filled('tanggal_filter')) {
+            $tanggal = Carbon::parse($request->tanggal_filter)->format('Y-m-d');
+            $query->whereDate('created_at', $tanggal);
+        }
+
+        // Filter status, khususnya jika ingin menampilkan "disetujui"
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter bagian berdasarkan data pada pengguna
+        if ($request->filled('bagian')) {
+            $query->whereHas('pengguna', function ($q) use ($request) {
+                $q->where('bagian', $request->bagian);
+            });
+        }
+
+        //filter barang berdasarkan id
+        if ($request->filled('barang_id')) {
+            $query->whereHas('barang', function ($q) use ($request) {
+                $q->where('barangs.id', $request->barang_id);
+            });
+        }
+
+        // Jika bukan manager atau staff, tampilkan hanya permintaan milik user sendiri
         if (!in_array($user->role, ['manager', 'staff'])) {
             $query->where('pengguna_id', $user->id);
         }
 
-        $permintaans = $query->get();
+        return $query->get();
+    }
 
-        return view('layouts.admin.permintaan.index', compact('permintaans'));
+    public function index(Request $request)
+    {
+        $permintaans = $this->getFilteredPermintaans($request);
+
+        // Ambil data bagian untuk dropdown filter di view (hanya ambil nilai unik)
+        $bagianList = Pengguna::select('bagian')->distinct()->get();
+        $barangs = Barang::all();
+
+        return view('layouts.admin.permintaan.index', compact('permintaans', 'bagianList','barangs'));
     }
 
     public function create()
@@ -42,10 +78,10 @@ class PermintaanController extends Controller
     {
         $request->validate([
             'pengguna_id' => 'required|exists:pengguna,id',
-            'barang_id' => 'required|array',
+            'barang_id'   => 'required|array',
             'barang_id.*' => 'exists:barangs,id',
-            'jumlah' => 'required|array',
-            'jumlah.*' => 'required|integer|min:1',
+            'jumlah'      => 'required|array',
+            'jumlah.*'    => 'required|integer|min:1',
         ]);
 
         $butuhValidasi = false;
@@ -63,7 +99,7 @@ class PermintaanController extends Controller
 
         $permintaan = Permintaan::create([
             'pengguna_id' => $request->pengguna_id,
-            'status' => $butuhValidasi ? 'butuh_validasi_manager' : 'menunggu',
+            'status'      => $butuhValidasi ? 'butuh_validasi_manager' : 'menunggu',
         ]);
 
         $bulanSekarang = Carbon::now()->translatedFormat('F Y');
@@ -71,7 +107,7 @@ class PermintaanController extends Controller
         foreach ($request->barang_id as $index => $barangId) {
             $permintaan->barang()->attach($barangId, [
                 'jumlah' => $request->jumlah[$index],
-                'bulan' => $bulanSekarang,
+                'bulan'  => $bulanSekarang,
             ]);
         }
 
@@ -94,9 +130,9 @@ class PermintaanController extends Controller
 
             BarangKeluar::create([
                 'permintaan_id' => $permintaan->id,
-                'barang_id' => $barang->id,
-                'jumlah' => $jumlahDiminta,
-                'tanggal_keluar' => now()->toDateString(),
+                'barang_id'     => $barang->id,
+                'jumlah'        => $jumlahDiminta,
+                'tanggal_keluar'=> now()->toDateString(),
             ]);
         }
 
@@ -121,7 +157,7 @@ class PermintaanController extends Controller
         }
 
         $permintaan = Permintaan::findOrFail($id);
-        $permintaan->update(['status' => 'menunggu']); // bisa langsung disetujui jika ingin
+        $permintaan->update(['status' => 'menunggu']);
 
         return back()->with('success', 'Permintaan berhasil divalidasi oleh manajer.');
     }
@@ -139,17 +175,21 @@ class PermintaanController extends Controller
         return back()->with('success', 'Permintaan ditolak oleh manajer.');
     }
 
-    public function exportExcel()
+    public function exportExcel(Request $request)
     {
-        return Excel::download(new PermintaanExport, 'permintaan.xlsx');
+        // Mengambil data permintaan sesuai filter
+        $permintaans = $this->getFilteredPermintaans($request);
+        // Asumsikan kelas PermintaanExport menerima parameter data (sesuaikan dengan implementasi Anda)
+        return Excel::download(new PermintaanExport($permintaans), 'permintaan.xlsx');
     }
 
-    public function exportPdf()
+    public function exportPdf(Request $request)
     {
-        $permintaans = Permintaan::with('pengguna', 'barang')->get();
+        $permintaans = $this->getFilteredPermintaans($request);
         $pdf = PDF::loadView('layouts.admin.permintaan.export-pdf', compact('permintaans'));
         return $pdf->download('permintaan.pdf');
     }
+
     public function tolakOlehManager(Request $request, $id)
     {
         $request->validate([
@@ -163,5 +203,4 @@ class PermintaanController extends Controller
 
         return redirect()->route('permintaan.index')->with('success', 'Permintaan ditolak dengan alasan.');
     }
-
 }

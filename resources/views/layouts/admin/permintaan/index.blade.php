@@ -20,32 +20,75 @@
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
+   
     <div class="card">
-        <div class="card-header">
-            <div class="d-flex justify-content-between">
-                {{-- Kiri: Tombol Tambah --}}
+        <div class="card-header ">
+            <div class="d-flex justify-content-between w-100">
+
                 <div>
                     @unless(in_array(auth()->user()->role, ['manager']))
-                        <a href="{{ route('permintaan.create') }}" class="btn btn-primary">+ Tambah Permintaan</a>
+                    <a href="{{ route('permintaan.create') }}" class="btn btn-primary">+ Tambah Permintaan</a>
                     @endunless
                 </div>
-
-                {{-- Kanan: Tombol Export --}}
-                @unless(auth()->user()->role === 'permintaan')
-                <div class=" gap-2">
-                    <a href="{{ route('permintaan.export.excel') }}" class="btn btn-success btn-sm">
+                <div class="gap-2">
+                    <!-- Sertakan query string filter pada link export -->
+                    <a href="{{ route('permintaan.export.excel', request()->query()) }}" class="btn btn-success btn-sm">
                         <i class="fa fa-file-excel"></i> Export Excel
                     </a>
-                    <a href="{{ route('permintaan.export.pdf') }}" class="btn btn-danger btn-sm" target="_blank">
+                    <a href="{{ route('permintaan.export.pdf', request()->query()) }}" class="btn btn-danger btn-sm" target="_blank">
                         <i class="fa fa-file-pdf"></i> Export PDF
                     </a>
                 </div>
-                @endunless
             </div>
         </div>
-
+   
 
         <div class="card-body">
+             <!-- Form Filter -->
+            <form method="GET" action="{{ route('permintaan.index') }}" class="mb-3">
+                <div class="row g-2">
+                   <div class="col-md-3">
+                        <label for="tanggal_filter">Tanggal</label>
+                        <input type="date" name="tanggal_filter" id="tanggal_filter" class="form-control"
+                            value="{{ request('tanggal_filter') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select name="status" id="status" class="form-control">
+                            <option value="">-- Pilih Status --</option>
+                            <option value="disetujui" {{ request('status') == 'disetujui' ? 'selected' : '' }}>Disetujui</option>
+                            <!-- Anda bisa menambahkan opsi status lain jika diperlukan -->
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="barang_id" class="form-label">Nama Barang</label>
+                        <select name="barang_id" id="barang_id" class="form-control">
+                            <option value="">-- Pilih Barang --</option>
+                            @foreach($barangs as $barang)
+                                <option value="{{ $barang->id }}" {{ request('barang_id') == $barang->id ? 'selected' : '' }}>
+                                    {{ $barang->nama_barang }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="bagian" class="form-label">Bagian</label>
+                        <select name="bagian" id="bagian" class="form-control">
+                            <option value="">-- Pilih Bagian --</option>
+                            @foreach($bagianList as $bag)
+                                <option value="{{ $bag->bagian }}" {{ request('bagian') == $bag->bagian ? 'selected' : '' }}>
+                                    {{ $bag->bagian }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-12 mt-2">
+                        <button type="submit" class="btn btn-primary">Filter</button>
+                        <a href="{{ route('permintaan.index') }}" class="btn btn-secondary">Reset</a>
+                    </div>
+                </div>
+            </form>
+
             <table id="tabel-permintaan" class="table table-bordered table-hover text-center align-middle">
                 <thead class="table-light">
                     <tr>
@@ -95,7 +138,6 @@
                                     {{ ucfirst(str_replace('_', ' ', $permintaan->status)) }}
                                 </span>
 
-                                {{-- Tampilkan alasan penolakan khusus untuk staff --}}
                                 @php
                                     $currentUser = auth()->user();
                                     $pembuat = $permintaan->pengguna;
@@ -103,21 +145,16 @@
 
                                 @if($permintaan->status === 'ditolak' && $permintaan->alasan_ditolak)
                                     @if(
-                                        // Jika pembuat permintaan adalah user permintaan
                                         ($pembuat->role === 'permintaan' && in_array($currentUser->role, ['staff', 'permintaan']) && $currentUser->id === $pembuat->id || $currentUser->role === 'staff') ||
-
-                                        // Jika pembuat permintaan adalah user staff
                                         ($pembuat->role === 'staff' && $currentUser->id === $pembuat->id)
                                     )
                                         <br>
                                         <small class="text-muted fst-italic">Alasan: {{ $permintaan->alasan_ditolak }}</small>
                                     @endif
                                 @endif
-
                             </td>
                             <td>{{ $permintaan->created_at->format('d-m-Y') }}</td>
                             <td>
-                                {{-- Aksi Staff --}}
                                 @if(auth()->user()->role === 'staff' && $permintaan->status === 'menunggu')
                                     <form action="{{ route('permintaan.approve', $permintaan->id) }}" method="POST" class="d-inline">
                                         @csrf
@@ -127,37 +164,32 @@
                                         @csrf
                                         <button type="submit" class="btn btn-sm btn-danger">Tolak</button>
                                     </form>
-
-                                {{-- Validasi Manager --}}
                                 @elseif(auth()->user()->role === 'manager' && $permintaan->status === 'butuh_validasi_manager')
                                     <form action="{{ route('permintaan.validasi.setujui', $permintaan->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         <button type="submit" class="btn btn-sm btn-success">Validasi</button>
                                     </form>
-                                    <!-- Tombol buka modal -->
                                     <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalTolak{{ $permintaan->id }}">
                                         Tolak
                                     </button>
-
-                                    <!-- Modal alasan tolak -->
                                     <div class="modal fade" id="modalTolak{{ $permintaan->id }}" tabindex="-1" aria-labelledby="tolakLabel{{ $permintaan->id }}" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <form action="{{ route('permintaan.tolak.manager', $permintaan->id) }}" method="POST">
-                                            @csrf
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="tolakLabel{{ $permintaan->id }}">Alasan Penolakan</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        <div class="modal-dialog">
+                                            <form action="{{ route('permintaan.tolak.manager', $permintaan->id) }}" method="POST">
+                                                @csrf
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="tolakLabel{{ $permintaan->id }}">Alasan Penolakan</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <textarea name="alasan_ditolak" class="form-control" rows="3" placeholder="Tulis alasan penolakan..." required></textarea>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="submit" class="btn btn-danger">Tolak Permintaan</button>
+                                                    </div>
                                                 </div>
-                                                <div class="modal-body">
-                                                    <textarea name="alasan_ditolak" class="form-control" rows="3" placeholder="Tulis alasan penolakan..." required></textarea>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="submit" class="btn btn-danger">Tolak Permintaan</button>
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </div>
+                                            </form>
+                                        </div>
                                     </div>
                                 @else
                                     <em>Tidak ada aksi</em>
@@ -183,7 +215,7 @@
             paging: true,
             pagingType: "simple_numbers",
             lengthChange: false,
-            searching: true,
+            searching: false,
             ordering: false,
             info: true,
             autoWidth: false,

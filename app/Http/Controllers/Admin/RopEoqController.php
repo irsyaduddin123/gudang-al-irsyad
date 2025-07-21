@@ -174,20 +174,25 @@ class RopEoqController extends Controller
 
         // Hitung total jumlah permintaan dari pivot
         $totalPermintaan = DB::table('barang_permintaan')
-            ->where('barang_id', $barang->id)
-            ->whereBetween('created_at', [$start, $end])
-            ->sum('jumlah');
+        ->join('permintaan', 'barang_permintaan.permintaan_id', '=', 'permintaan.id')
+        ->where('barang_permintaan.barang_id', $barang->id)
+        ->where('permintaan.status', 'disetujui')
+        ->whereBetween('barang_permintaan.created_at', [$start, $end])
+        ->sum('barang_permintaan.jumlah');
 
             if ($totalPermintaan == 0) {
             return back()->with('error', 'Tidak ada permintaan barang pada periode yang dipilih. Perhitungan tidak dapat dilakukan.');
         }
         // Hitung jumlah hari unik permintaan
         $jumlahHari = DB::table('barang_permintaan')
-            ->where('barang_id', $barang->id)
-            ->whereBetween('created_at', [$start, $end])
-            ->select(DB::raw('DATE(created_at) as tanggal'))
-            ->distinct()
-            ->count();
+        ->join('permintaan', 'barang_permintaan.permintaan_id', '=', 'permintaan.id')
+        ->where('barang_permintaan.barang_id', $barang->id)
+        ->where('permintaan.status', 'disetujui')
+        ->whereBetween('barang_permintaan.created_at', [$start, $end])
+        ->select(DB::raw('DATE(barang_permintaan.created_at) as tanggal'))
+        ->distinct()
+        ->count();
+
 
         // Pemakaian rata-rata per hari
         $pemakaian_rata = $jumlahHari > 0 ? ($totalPermintaan / $jumlahHari) : 1;
