@@ -20,8 +20,11 @@ class PengadaanController extends Controller
         }
 
         $pengadaans = $query->latest()->get();
+        // $barangs = Barang::all(); // untuk form modal
+        $barangs = Barang::with('suppliers')->get();
+        $suppliers = Supplier::all(); // untuk form modal
 
-        return view('pengadaan.index', compact('pengadaans'));
+        return view('pengadaan.index', compact('pengadaans', 'barangs', 'suppliers'));
     }
 
     public function create(Barang $barang)

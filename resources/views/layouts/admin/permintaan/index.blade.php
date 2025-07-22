@@ -106,7 +106,7 @@
                     @forelse($permintaans as $permintaan)
                         <tr>
                             <td>{{ $permintaan->pengguna->nama ?? '-' }}</td>
-                            <td>{{ $permintaan->pengguna->bagian ?? '-' }}</td>
+                            <td>{{ $permintaan->pengguna->Bagian ?? '-' }}</td>
                             <td>
                                 <ul class="mb-0 pl-3">
                                     @foreach($permintaan->barang as $barang)

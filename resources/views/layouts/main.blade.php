@@ -80,7 +80,7 @@
 <script src="{{ asset('templates/plugins/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('templates/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('templates/dist/js/adminlte.min.js') }}"></script>
-<script src="{{ asset('templates/dist/js/demo.js') }}"></script>
+{{-- <script src="{{ asset('templates/dist/js/demo.js') }}"></script> --}}
 
 <!-- DataTables Bootstrap 5 JS -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

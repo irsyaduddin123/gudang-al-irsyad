@@ -38,6 +38,13 @@
                 </form>
 
                 {{-- Tabel Pengadaan --}}
+                <div class="mb-3 d-flex justify-content-between">
+
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahPengadaan">
+                        <i class="fa fa-plus"></i> Tambah Pengadaan
+                    </button>
+                </div>
+
                 <div class="table-responsive">
                     @php
                         $adaYangDitolak = $pengadaans->contains('status', 'ditolak');
@@ -143,10 +150,82 @@
                 {{-- <div class="d-flex justify-content-end mt-3">
                     {{ $pengadaans->links('pagination::bootstrap-5') }}
                 </div> --}}
+                <!-- Modal Tambah Pengadaan Manual -->
+                <div class="modal fade" id="modalTambahPengadaan" tabindex="-1" aria-labelledby="modalTambahPengadaanLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <form action="{{ route('pengadaan.store') }}" method="POST">
+                            @csrf
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalTambahPengadaanLabel">Tambah Pengadaan Barang</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                                </div>
+                                <div class="modal-body">
+
+                                    <div class="mb-3">
+                                        <label for="barang_id" class="form-label">Pilih Barang</label>
+                                        <select name="barang_id" id="barangSelect" class="form-select" required>
+                                        <option value="">-- Pilih Barang --</option>
+                                        @foreach($barangs as $barang)
+                                            <option 
+                                            value="{{ $barang->id }}"
+                                            data-suppliers='@json($barang->suppliers->map(fn($s) => ["id" => $s->id, "nama" => $s->nama_supplier]))'>
+                                            {{ $barang->nama_barang }}
+                                            </option>
+                                        @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="supplier_id" class="form-label">Pilih Supplier</label>
+                                        <select name="supplier_id" id="supplierSelect" class="form-select" required>
+                                        <option value="">-- Pilih Supplier --</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="tanggal_pengadaan" class="form-label">Tanggal Pengadaan</label>
+                                        <input type="date" name="tanggal_pengadaan" id="tanggal_pengadaan" class="form-control" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="jumlah" class="form-label">Jumlah Barang</label>
+                                        <input type="number" name="jumlah" id="jumlah" class="form-control" min="1" required>
+                                    </div>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                    <button type="submit" class="btn btn-primary">Simpan</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+
             </div>
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+document.getElementById('barangSelect').addEventListener('change', function () {
+    const selectedOption = this.options[this.selectedIndex];
+    const supplierSelect = document.getElementById('supplierSelect');
+    const suppliers = JSON.parse(selectedOption.getAttribute('data-suppliers') || '[]');
+
+    supplierSelect.innerHTML = '<option value="">-- Pilih Supplier --</option>';
+    suppliers.forEach(supplier => {
+        const option = document.createElement('option');
+        option.value = supplier.id;
+        option.textContent = supplier.nama;
+        supplierSelect.appendChild(option);
+    });
+});
+</script>
 @endsection
 
 {{-- <form action="{{ route('pengadaan.reject', $pengadaan->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Tolak pengadaan ini?')">

@@ -50,7 +50,7 @@
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $p->nama }}</td>
                                 <td>{{ $p->username }}</td>
-                                <td>{{ $p->bagian }}</td>
+                                <td>{{ $p->Bagian }}</td>
                                 <td>{{ $p->role }}</td>
                                 @unless(auth()->user()->role === 'manager')
                                 <td>
@@ -97,7 +97,7 @@
                                                 </div>
                                                 <div class="form-group">
                                                     <label>Bagian Ruangan</label>
-                                                    <input type="text" name="bagian" value="{{ $p->bagian }}" class="form-control" required>
+                                                    <input type="text" name="bagian" value="{{ $p->Bagian }}" class="form-control" required>
                                                 </div>
                                                 <div class="form-group">
                                                     <label>Role</label>

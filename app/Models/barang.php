@@ -33,8 +33,13 @@ class barang extends Model
     //     return $this->belongsTo(Supplier::class, 'nama_barang', 'nama_barang');
     // }
 
-    public function suppliers()
+//     public function suppliers()
+// {
+//     return Supplier::where('nama_barang', $this->nama_barang)->get();
+// }
+public function suppliers()
 {
-    return Supplier::where('nama_barang', $this->nama_barang)->get();
+    return $this->hasMany(Supplier::class, 'nama_barang', 'nama_barang');
 }
+
 }
