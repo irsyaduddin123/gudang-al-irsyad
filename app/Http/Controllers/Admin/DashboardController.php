@@ -30,6 +30,8 @@ class DashboardController extends Controller
     $jumlahPermintaan = Permintaan::count();
     $barangTerbanyak = DB::table('barang_permintaan')
     ->join('barangs', 'barang_permintaan.barang_id', '=', 'barangs.id')
+    ->join('permintaan', 'barang_permintaan.permintaan_id', '=', 'permintaan.id')
+    ->where('permintaan.status', 'disetujui') // hanya yang disetujui
     ->select('barangs.nama_barang', DB::raw('SUM(barang_permintaan.jumlah) as total'))
     ->groupBy('barang_permintaan.barang_id', 'barangs.nama_barang')
     ->orderByDesc('total')
