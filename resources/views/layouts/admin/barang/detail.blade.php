@@ -37,7 +37,7 @@
             <td>{{ $supplier->nama_supplier ?? '-' }}</td>
         </tr>
     </table>
-    <a href="{{ route('barang.index') }}" class="btn btn-secondary">
+    <a href="{{ route('dashboard') }}" class="btn btn-secondary">
         <i class="fas fa-arrow-left"></i> Kembali
     </a>
     <a href="{{ route('pengadaan.create', $barang->id) }}" class="btn btn-primary">

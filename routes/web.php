@@ -78,7 +78,7 @@
 use App\Http\Controllers\Admin\BarangKeluarController;
 use App\Http\Controllers\BarangMasukController;
 use App\Http\Controllers\PengadaanController;
-use App\Http\Controllers\Permintaan\PermintaanUserController;
+use App\Http\Controllers\user\PermintaanUserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ProfileController;
@@ -93,9 +93,11 @@ use App\Http\Controllers\Manager\ManagerDashboardController;
 // })->middleware(['auth', 'cekrole:staff']);
 
 // Login
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::middleware('web')->group(function () {
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+});
 
 // Middleware auth pakai pengguna
 Route::middleware(['auth'])->group(function () {
@@ -113,8 +115,8 @@ Route::middleware(['auth'])->group(function () {
 // });
 
 
-Route::middleware(['auth'])->group(function ()
-// Route::middleware(['auth', 'cekrole:staff,manager'])->group(function () 
+// Route::middleware(['auth'])->group(function ()
+Route::middleware(['auth', 'cekrole:staff,manager'])->group(function () 
 {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard-manager', [ManagerDashboardController::class, 'index'])->name('dashboard.manager');
@@ -208,9 +210,11 @@ Route::middleware(['auth'])->group(function ()
 
 });
 
+// use App\Http\Controllers\user\PermintaanUserController;
 
-// Route::middleware(['auth', 'cekrole:permintaan'])->prefix('permintaan-user')->group(function () {
-//     Route::get('/permintaan/user',         [PermintaanUserController::class, 'index'])->name('permintaan.user.index');
-//     Route::get('/create',   [PermintaanUserController::class, 'create'])->name('permintaan.user.create');
-//     Route::post('/',        [PermintaanUserController::class, 'store'])->name('permintaan.user.store');
-// });
+Route::middleware(['auth', 'cekrole:permintaan'])->prefix('user')->group(function () {
+    Route::get('/permintaan', [PermintaanUserController::class, 'index'])->name('user.permintaan.index');
+    Route::post('/permintaan', [PermintaanUserController::class, 'store'])->name('user.permintaan.store');
+    Route::put('/permintaan/{id}', [PermintaanUserController::class, 'update'])->name('user.permintaan.update');
+    Route::delete('/permintaan/{id}', [PermintaanUserController::class, 'destroy'])->name('user.permintaan.destroy');
+});

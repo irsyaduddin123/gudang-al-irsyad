@@ -28,6 +28,12 @@ class barang extends Model
     {
         return $this->hasOne(RopEoq::class);
     }
+
+    public function ropEoqSemua()
+{
+    return $this->hasMany(RopEoq::class, 'barang_id');
+}
+
     //     public function supplier()
     // {
     //     return $this->belongsTo(Supplier::class, 'nama_barang', 'nama_barang');

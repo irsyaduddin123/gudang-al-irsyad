@@ -79,7 +79,27 @@ class DashboardController extends Controller
         // ->sort()
         // ->values();
 
-    $barangList = Barang::with(['safetyStok', 'ropEoq'])->get();
+$barangList = Barang::with(['safetyStok', 'ropEoqSemua'])->get();
+
+    // $barangList = Barang::with(['safetyStok', 'ropEoq'])->get();
+
+// $dataPerBulan = collect();
+
+// foreach ($barangList as $barang) {
+//     foreach ($barang->ropEoq as $rekap) {
+//         $dataPerBulan->push([
+//             'nama_barang' => $barang->nama_barang,
+//             'stok' => $barang->stok,
+//             'satuan' => $barang->satuan,
+//             'safety_stok' => $barang->safetyStok->minstok ?? '-',
+//             'bulan' => $rekap->bulan,
+//             'rop' => $rekap->rop ?? '❌',
+//             'eoq' => $rekap->eoq ?? '❌',
+//         ]);
+//     }
+// }
+
+
     $ropEoqData = RopEoq::with('barang')->get();
 
     $ropEoqChartData = RopEoq::with('barang')
@@ -98,6 +118,11 @@ class DashboardController extends Controller
         ->unique()
         ->values();
 
+        $bulanList = RopEoq::select('bulan')
+    ->distinct()
+    ->orderByRaw("STR_TO_DATE(bulan, '%M %Y') ASC")
+    ->pluck('bulan');
+
     return view('layouts.admin.dashboard.index', compact(
         'jumlahPengguna',
         'permintaanBelumDisetujui',
@@ -113,7 +138,8 @@ class DashboardController extends Controller
         'daftarBarang',
         'daftarBulan',
         'bulanFilter',
-        'barangTerbanyak'
+        'barangTerbanyak',
+        'bulanList'
         // 'daftarTahun'
     ));
 }

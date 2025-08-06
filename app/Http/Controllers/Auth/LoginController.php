@@ -31,8 +31,8 @@ class LoginController extends Controller
             $user = Auth::guard('web')->user();
 
             if ($user->role === 'permintaan') {
-                return redirect()->route('permintaan.index');
-            }
+    return redirect()->route('user.permintaan.index');
+}
 
             return redirect()->route('dashboard');
         }

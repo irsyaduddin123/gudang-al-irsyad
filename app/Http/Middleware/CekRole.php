@@ -13,20 +13,20 @@ class CekRole
     /**
      * Handle an incoming request.
      */
-    public function handle(Request $request, Closure $next, string $role)
-    {
-        $user = Auth::guard('web')->user(); // ini akan ambil dari penggunas
+    public function handle(Request $request, Closure $next, ...$roles)
+{
+    $user = Auth::guard('web')->user();
 
-        if (!$user) {
-            abort(403, 'Unauthorized');
-        }
-
-        if ($user->role !== $role) {
-            abort(403, 'Unauthorized');
-        }
-
-        return $next($request);
+    if (!$user) {
+        abort(403, 'Unauthorized');
     }
+
+    if (!in_array($user->role, $roles)) {
+        abort(403, 'Belum terdaftar');
+    }
+
+    return $next($request);
+}
 
     
 }
