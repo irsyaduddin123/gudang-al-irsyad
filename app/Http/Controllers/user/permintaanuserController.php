@@ -11,13 +11,25 @@ use Carbon\Carbon;
 
 class PermintaanUserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $barangs = Barang::all();
+
         $permintaans = Permintaan::with('barang', 'pengguna')
-            ->where('pengguna_id', Auth::id())
-            ->latest()
-            ->get();
+            ->where('pengguna_id', Auth::id());
+
+        // Filter bulan
+        if ($request->filled('bulan')) {
+            $permintaans->whereMonth('created_at', $request->bulan);
+        }
+
+        // Kalau mau filter tahun juga
+        if ($request->filled('tahun')) {
+            $permintaans->whereYear('created_at', $request->tahun);
+        }
+
+        $permintaans = $permintaans->latest()->get();
+
 
         return view('user.permintaan.index', compact('permintaans', 'barangs'));
     }
