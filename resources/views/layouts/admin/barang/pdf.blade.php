@@ -17,10 +17,6 @@
 <body>
 
     <div class="header">
-        {{-- Gunakan salah satu dari dua baris di bawah ini sesuai konteks --}}
-        {{-- Untuk browser: --}}
-        {{-- <img src="{{ asset('images/logo2.png') }}" alt="Logo Rumah Sakit"> --}}
-        {{-- Untuk PDF: --}}
         <img src="{{ public_path('images/logo2.png') }}" alt="Logo Rumah Sakit">
 
         <div class="header-title">

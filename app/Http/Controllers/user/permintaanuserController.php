@@ -23,7 +23,7 @@ class PermintaanUserController extends Controller
             $permintaans->whereMonth('created_at', $request->bulan);
         }
 
-        // Kalau mau filter tahun juga
+        // filter tahun 
         if ($request->filled('tahun')) {
             $permintaans->whereYear('created_at', $request->tahun);
         }

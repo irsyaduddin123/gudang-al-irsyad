@@ -57,22 +57,6 @@ class PenggunaController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
@@ -85,14 +69,6 @@ class PenggunaController extends Controller
             'role' => 'required|in:staff,permintaan,manager',
             'password' => 'nullable|string|min:6',
         ]);
-
-        // $pengguna = Pengguna::findOrFail($id);
-        // $pengguna->update([
-        //     'nama' => $request->nama,
-        //     'username' => $request->username,
-        //     'bagian' => $request->bagian,
-        //     'role' => $request->role,
-        // ]);
 
         $pengguna = Pengguna::findOrFail($id);
 
