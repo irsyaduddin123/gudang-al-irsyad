@@ -18,7 +18,7 @@ if ($role === 'staff') {
 
 $allMenus = [
     // Utama
-    (object)['group' => 'Utama', 'group_icon' => 'fa fa-tachometer-alt', 'title' => 'Dashboard', 'path' => '/', 'icon' => 'fa fa-home'],
+    // (object)['group' => 'Utama', 'group_icon' => 'fa fa-tachometer-alt', 'title' => 'Dashboard', 'path' => '/', 'icon' => 'fa fa-home'],
 
     // Pengelolaan
     (object)['group' => 'Pengelolaan', 'group_icon' => 'fa fa-cogs', 'title' => 'Barang', 'path' => '/barang', 'icon' => 'fa fa-boxes'],
@@ -46,7 +46,7 @@ if (!in_array($role, ['staff', 'manager', 'admin'])) {
 $groupedMenus = $menus->groupBy('group');
 @endphp
 
-<aside class="main-sidebar sidebar-dark-primary elevation-4">
+{{-- <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <div class="sidebar">
         <!-- User Info -->
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
@@ -130,7 +130,7 @@ $groupedMenus = $menus->groupBy('group');
             </ul>
         </nav>
     </div>
-</aside>
+</aside>  --}}
 
 <!-- Logout Modal -->
 <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
@@ -152,4 +152,119 @@ $groupedMenus = $menus->groupBy('group');
       </div>
     </div>
   </div>
-</div>
+</div> 
+
+<aside class="main-sidebar elevation-4">
+    <div class="brand-link text-center">
+        <img src="{{ asset('images/logo2.png') }}" 
+            alt="Logo" 
+            class="brand-image"
+            style="height:60px; width:auto; margin:0 auto; display:block;">
+        <div class="brand-text font-weight-light mt-2">
+            Logistik Non-Medis
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- User Info -->
+        <div class="user-panel mt-3 pb-3 mb-3 d-flex align-items-center" 
+            style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <div class="image">
+                <img src="{{ asset('templates/dist/img/user2-160x160.jpg') }}" 
+                    class="img-circle elevation-2" alt="User Image">
+            </div>
+            <div class="info">
+                <div class="d-block text-white">
+                    {{ Auth::user()->nama ?? 'Guest' }}
+                </div>
+                <small class="text-muted" style="font-size: 0.85rem;">
+                    {{ ucfirst($role) }}
+                </small>
+            </div>
+        </div>
+
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column"
+                data-widget="treeview"
+                role="menu"
+                data-accordion="true">
+
+                <li class="nav-item">
+                    <a href="{{ url('/') }}" class="nav-link {{ request()->is('/') ? 'active' : '' }}">
+                        <i class="nav-icon fa fa-home"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+
+                @foreach ($groupedMenus as $group => $items)
+                    @php
+                        $icon = $items->first()->group_icon ?? 'fa fa-folder';
+                        $isOpen = $items->contains(fn($m) => request()->is(trim($m->path, '/')));
+                    @endphp
+
+                    <li class="nav-item {{ $isOpen ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ $isOpen ? 'active' : '' }}">
+                            <i class="nav-icon {{ $icon }}"></i>
+                            <p>
+                                {{ strtoupper($group) }}
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            @foreach ($items as $menu)
+                                @php
+                                    $isActive = request()->is(trim($menu->path, '/'));
+                                    $badge = null;
+                                    $badgeColor = 'badge-warning';
+
+                                    if ($menu->title === 'Permintaan') {
+                                        if ($role === 'staff' && $jumlahMenunggu > 0) {
+                                            $badge = $jumlahMenunggu;
+                                        } elseif ($role === 'manager' && $jumlahButuhValidasi > 0) {
+                                            $badge = $jumlahButuhValidasi;
+                                            $badgeColor = 'badge-danger';
+                                        }
+                                    }
+                                    if ($menu->title === 'Barang Masuk' && $role === 'staff' && $jumlahBelumDiterima > 0) {
+                                        $badge = $jumlahBelumDiterima;
+                                        $badgeColor = 'badge-info';
+                                    }
+                                    if ($menu->title === 'Pengadaan' && $role === 'manager' && $jumlahPengadaanButuhValidasi > 0) {
+                                        $badge = $jumlahPengadaanButuhValidasi;
+                                        $badgeColor = 'badge-danger';
+                                    }
+                                @endphp
+                                <li class="nav-item">
+                                    <a href="{{ url($menu->path) }}" class="nav-link {{ $isActive ? 'active' : '' }}">
+                                        <i class="nav-icon {{ $menu->icon }}"></i>
+                                        <p>
+                                            {{ $menu->title }}
+                                            @if ($badge)
+                                                <span class="right badge {{ $badgeColor }}">
+                                                    <i class="fa fa-bell"></i> {{ $badge }}
+                                                </span>
+                                            @endif
+                                        </p>
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </li>
+                @endforeach
+
+                <!-- Logout -->
+                
+                <li class="nav-item mt-3">
+                    <button class="nav-link btn btn-link text-left text-white w-100" 
+                            data-bs-toggle="modal" data-bs-target="#logoutModal">
+                        <i class="nav-icon fas fa-sign-out-alt"></i>
+                        <p>Logout</p>
+                    </button>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</aside>
+

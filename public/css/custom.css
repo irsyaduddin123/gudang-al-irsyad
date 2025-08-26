@@ -1,0 +1,95 @@
+/* Sidebar */
+.main-sidebar {
+    background-color: #1b4332 !important; 
+    color: #e0f2f1;
+    transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    box-shadow: 2px 0 6px rgba(0,0,0,0.2);
+    overflow: hidden;
+}
+
+/* Hover menu utama */
+.nav-sidebar > .nav-item > .nav-link:hover {
+    background-color: #2d6a4f !important; 
+}
+
+/* Menu aktif (selected) */
+.nav-sidebar > .nav-item > .nav-link.active {
+    background-color: #40916c !important; 
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+/* Hover submenu */
+.nav-sidebar .nav-treeview > .nav-item > .nav-link:hover {
+    background-color: #52b788 !important; 
+    color: #1b4332 !important;            
+    font-weight: 500;
+}
+
+/* Submenu aktif */
+.nav-sidebar .nav-treeview > .nav-item > .nav-link.active {
+    background-color: #74c69d !important; 
+    color: #1b4332 !important;
+    font-weight: 600;
+}
+
+/* Navbar */
+.main-header.navbar {
+    background-color: #14532d !important; 
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Brand logo wrapper */
+.brand-link {
+    background: transparent !important;
+    text-align: center;
+    padding: 1rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.2);
+}
+
+/* Brand text */
+.brand-text {
+    font-size: 0.9rem;
+    color: #f0fff4 !important;
+    font-weight: 600;
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Logo normal (sidebar terbuka) */
+.brand-link img {
+    max-height: 60px;
+    border-radius: 0;              /* default kotak */
+    object-fit: contain;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Saat sidebar collapse */
+body.sidebar-collapse .brand-link {
+    padding: 1rem 0;
+    justify-content: center;
+    align-items: center;
+}
+
+body.sidebar-collapse .brand-link img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;             /* jadi lingkaran */
+    object-fit: cover;              /* isi gambar proporsional */
+    margin: 0 auto;
+    /* display: block;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);  */
+}
+
+body.sidebar-collapse .brand-text {
+    display: none; /* sembunyikan teks saat collapse */
+}
+
+
+.main-footer {
+    background-color: #14532d !important; 
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}

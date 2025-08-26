@@ -49,7 +49,7 @@
                     @php
                         $adaYangDitolak = $pengadaans->contains('status', 'ditolak');
                     @endphp
-                    <table class="table table-bordered table-hover text-center align-middle">
+                    <table id="tablePengadaan" class="table table-bordered table-hover text-center align-middle">
                         <thead class="table-light">
                             <tr>
                                 <th>No</th>
@@ -226,11 +226,37 @@ document.getElementById('barangSelect').addEventListener('change', function () {
     });
 });
 </script>
+
+
+<script>
+    $(document).ready(function () {
+        $('#tablePengadaan').DataTable({
+            paging: true,
+            pagingType: "simple_numbers",
+            lengthChange: false,
+            searching: false,
+            ordering: false,
+            info: true,
+            autoWidth: false,
+            responsive: true,
+            pageLength: 10,
+            language: {
+                lengthMenu: "Tampilkan _MENU_ data per halaman",
+                zeroRecords: "Tidak ditemukan data",
+                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                infoEmpty: "Tidak ada data yang ditampilkan",
+                infoFiltered: "(disaring dari _MAX_ total data)",
+                search: "Cari:",
+                paginate: {
+                    first: "«",
+                    last: "»",
+                    next: "›",
+                    previous: "‹"
+                }
+            }
+        });
+    });
+</script>
 @endsection
 
-{{-- <form action="{{ route('pengadaan.reject', $pengadaan->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Tolak pengadaan ini?')">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-danger">
-                                                    <i class="fa fa-times"></i> Tolak
-                                                </button>
-                                            </form> --}}
+

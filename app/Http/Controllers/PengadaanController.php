@@ -15,7 +15,7 @@ class PengadaanController extends Controller
     {
         $query = Pengadaan::with(['barang', 'supplier']);
 
-        if ($request->has('status') && $request->status !== '') {
+        if ($request->filled('status') && $request->status !== '') {
             $query->where('status', $request->status);
         }
 

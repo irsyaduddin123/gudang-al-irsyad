@@ -17,6 +17,8 @@
   <!-- AdminLTE -->
   <link rel="stylesheet" href="{{ asset('templates/dist/css/adminlte.min.css') }}">
 
+  <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+
   <!-- Bootstrap 5 CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 

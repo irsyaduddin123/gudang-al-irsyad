@@ -163,7 +163,7 @@ class RopEoqController extends Controller
         $end = Carbon::createFromFormat('Y-m', $periode)->endOfMonth();
         $bulanSekarang = $start->translatedFormat('F Y'); // contoh: "Juli 2025"
 
-        // 🔒 Cek apakah sudah pernah dihitung
+        // Cek apakah sudah pernah dihitung
         $existing = RopEoq::where('barang_id', $barang->id)
             ->where('bulan', $bulanSekarang)
             ->first();
@@ -262,7 +262,7 @@ class RopEoqController extends Controller
         $end = Carbon::createFromFormat('Y-m', $periode)->endOfMonth();
         $bulanSekarang = $start->translatedFormat('F Y'); // contoh: "Juli 2025"
 
-        // ✅ Cek apakah ada data lain dengan barang dan bulan yang sama
+        // Cek apakah ada data lain dengan barang dan bulan yang sama
         $cekDuplikat = RopEoq::where('barang_id', $barang->id)
             ->where('bulan', $bulanSekarang)
             ->where('id', '!=', $id)
